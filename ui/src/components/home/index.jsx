@@ -8,6 +8,7 @@ import {
 import { colors } from '../../theme'
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 
+import ColoredLoader from '../loader/coloredLoader'
 import Loader from '../loader'
 import Snackbar from '../snackbar'
 
@@ -132,7 +133,7 @@ class Home extends Component {
           <Typography variant={'h3'} className={ `${classes.title} title` }>Faucet</Typography>
           <Typography variant={'h6'} className={ `${classes.subTitle} title` }>(Click to request funds)</Typography>
         </Card>
-        { loading && <Loader /> }
+        { loading && <ColoredLoader /> }
         { snackbarMessage && this.renderSnackbar() }
       </div>
     )
