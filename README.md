@@ -92,7 +92,9 @@ truffle migrate --network testnet --reset --skip-dry-run
 
 This repository has also been configured to support smart contract compilation using [Waffle](https://getwaffle.io)
 
-You can compile the smart contracts using Waffle optimizations by running the command `yarn compile`. `yarn compile` will also run a separate [ABI extractor script](scripts/abi.sh) in a `postcompile` step that will be exported to `build/abi`.
+You can compile the smart contracts using Waffle optimizations by running the command `yarn compile`.
+
+`yarn compile` will also run a separate [ABI extractor script](scripts/abi.sh) in a `postcompile` step that will be exported to `build/abi`.
 
 #### @harmony-js/core
 
