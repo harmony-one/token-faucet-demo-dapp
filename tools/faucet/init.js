@@ -40,7 +40,7 @@ if (faucetAddress == null || faucetAddress == '') {
 }
 
 if (argv.amount == null || argv.amount == '') {
-  console.log('You must supply the amount of tokens to mint using --amount AMOUNT or -a AMOUNT! Amount is a normal number - not wei');
+  console.log('You must supply the amount of tokens to transfer to the faucet using --amount AMOUNT or -a AMOUNT! Amount is a normal number - not wei');
   process.exit(0);
 }
 
