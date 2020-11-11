@@ -1,0 +1,50 @@
+{
+  "homepage": "./",
+  "name": "Harmony-Token-Faucet-demo-dApp-UI",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@harmony-js/core": "^0.1.55",
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "async": "^3.2.0",
+    "dotenv": "^8.2.0",
+    "flux": "^3.1.3",
+    "ipfs-react-router": "^0.2.2",
+    "mobx": "^6.0.3",
+    "moment": "^2.29.1",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^4.0.0",
+    "typeface-roboto": "1.1.13",
+    "typescript": "^4.0.5",
+    "web3": "^1.3.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^4.2.5"
+  }
+}
