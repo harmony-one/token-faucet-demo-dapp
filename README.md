@@ -185,6 +185,8 @@ Harmony is looking into both MetaMask as well as creating a web3-react component
 
 #### Development & deployment
 
+The UI resides in the [ui](ui/) folder, so `cd ui` before running the commands below.
+
 To start the UI on http://localhost:3000, just run `yarn start`.
 
 To create a production build, run `yarn build`.
