@@ -31,8 +31,9 @@ const styles = theme => ({
     //background: colors.compoundGreen,
     minWidth: '100vw',
     padding: '36px 24px',
-    backgroundPosition: '0 -30vh',
-    backgroundImage: `radial-gradient(50% 50% at 50% 50%, ${transparentize(0.9, '#00AEE9')} 0%, ${transparentize(1, '#FFFFFF')} 100%)`
+    backgroundPosition: '0 -10vh',
+    backgroundImage: `radial-gradient(50% 50% at 50% 50%, ${transparentize(0.9, '#00AEE9')} 0%, ${transparentize(1, '#FFFFFF')} 100%)`,
+    //backgroundImage: `linear-gradient(${transparentize(0.9, '#00AEE9')}, ${transparentize(1, '#FFFFFF')})`
   },
   connectHeading: {
     maxWidth: '400px',
