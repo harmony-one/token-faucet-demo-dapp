@@ -1,6 +1,6 @@
 const config = {
   network: 'mainnet',
-  addresses: {"token": "0xddd35ef64ee319580a8e7ae6b8f5edd985a081ad", "faucet": "0x00fd90158f857f1e85f0a043179445623836f6d8"}
+  addresses: {"token": "0x683f21B88a55d811214e3F20DB286Ee992097881", "faucet": "0x5540Cd0D227de9E4EbE2D76321a45Bc5a60883c1"}
 };
 
 export default config;
