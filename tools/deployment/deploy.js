@@ -27,11 +27,15 @@ const faucet = {
 }
 
 async function deploy() {
+  console.log('   Deploying contracts...\n');
+
   const tokenAddress = await deployContract('TestToken', []);
-  console.log(`    Deployed TestToken contract to address ${tokenAddress} (${getAddress(tokenAddress).bech32})`);
+  console.log(`   Deployed TestToken contract to address ${tokenAddress} (${getAddress(tokenAddress).bech32})`);
 
   const faucetAddress = await deployContract('Faucet', [tokenAddress, faucet.amount, faucet.frequency]);
-  console.log(`    Deployed Faucet contract to address ${faucetAddress} (${getAddress(faucetAddress).bech32})`);
+  console.log(`   Deployed Faucet contract to address ${faucetAddress} (${getAddress(faucetAddress).bech32})\n`);
+
+  console.log(`   export NETWORK=${argv.network}; export TOKEN=${tokenAddress}; export FAUCET=${faucetAddress}\n`);
 }
 
 async function deployContract(contractName, args) {

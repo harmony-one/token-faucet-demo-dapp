@@ -12,8 +12,8 @@ module.exports = function (deployer, network, accounts) {
   deployer.deploy(TestToken).then(function () {
     return deployer.deploy(Faucet, TestToken.address, faucet.amount, faucet.frequency).then(function () {
       console.log(`   TestToken address: ${TestToken.address} - ${getAddress(TestToken.address).bech32}`);
-      console.log(`   Faucet address: ${Faucet.address} - ${getAddress(Faucet.address).bech32}`);
-      console.log(`   export NETWORK=${network}; export TESTTOKEN=${TestToken.address}; export FAUCET=${Faucet.address}\n`);
+      console.log(`   Faucet address: ${Faucet.address} - ${getAddress(Faucet.address).bech32}\n`);
+      console.log(`   export NETWORK=${network}; export TOKEN=${TestToken.address}; export FAUCET=${Faucet.address}\n`);
     }); // End Faucet deployment
   }); // End TestToken deployment
 }
