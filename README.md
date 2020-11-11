@@ -177,6 +177,11 @@ The UI was originally forked from [Yearn's UI](https://github.com/iearn-finance/
 
 The UI also showcases wallet integration with Harmony's own [OneWallet](https://chrome.google.com/webstore/detail/harmony-one-wallet/gldpceolgfpjnajainimdfghhhgcnfmf/) as well as [MathWallet](https://chrome.google.com/webstore/detail/math-wallet/afbcbjpbpfadlkmhmclhkeeodmamcflc).
 
+The respective wallet implementations/integrations can be found here:
+
+- [OneWallet](ui/src/wallets/onewallet.ts)
+- [MathWallet](ui/src/wallets/mathwallet.ts)
+
 The UI also showcases the interaction with the faucet smart contract and allows the user to request funds from the faucet every x blocks (depending on the smart contract deployment).
 
 #### A note on MetaMask and web3-react
