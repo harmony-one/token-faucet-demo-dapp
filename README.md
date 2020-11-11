@@ -169,7 +169,9 @@ $ node tools/tokens/mint.js --network testnet --token 0xd801333222bffa78df2663f9
 
 This demo dApp comes with a super minimal UI created in React.
 
-![Token Faucet dApp UI](docs/token-faucet-dapp-screen.png)
+![Start screen](docs/start-screen.png)
+
+![Faucet screen](docs/faucet-screen.png)
 
 The UI was originally forked from [Yearn's UI](https://github.com/iearn-finance/iearn-finance) but simplified to only showcase this dApp's functionality.
 
