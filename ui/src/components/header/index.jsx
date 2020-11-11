@@ -24,8 +24,30 @@ const styles = theme => ({
     zIndex: 999
   },
   actionButton: {
-    color: colors.white,
-    borderColor: colors.white
+    background: '#bcecfd',
+    color: '#00AEE9',
+    borderColor: '#00AEE9',
+    '&:hover': {
+      color: `${colors.white} !important`
+    }
+  },
+  gradient: {
+    backgroundColor: colors.white,
+    '&:hover': {
+      backgroundColor: '#00AEE9',
+      '& .title': {
+        color: `${colors.white} !important`
+      },
+      '& .icon': {
+        color: `${colors.white} !important`
+      }
+    },
+    '& .title': {
+      color: '#00AEE9',
+    },
+    '& .icon': {
+      color: '#00AEE9'
+    },
   },
   green: {
     backgroundColor: colors.white,
@@ -79,7 +101,7 @@ class Header extends Component {
     return (
       <div className={ classes.headerContainer }>
         <Button
-          className={ classes.green }
+          className={ classes.gradient }
           variant="outlined"
           color="primary"
           disabled={ true }
@@ -87,7 +109,7 @@ class Header extends Component {
           <Typography>{ tokenBalance } TST</Typography>
         </Button>
         <Button
-          className={ classes.green }
+          className={ classes.gradient }
           variant="outlined"
           color="primary"
           onClick={ this.signoutClicked }

@@ -5,7 +5,12 @@ import {
   Typography,
   Button,
 } from '@material-ui/core';
+
+import { transparentize } from 'polished'
+
 import { colors } from '../../theme'
+
+import harmonyLogo from '../../assets/harmony.png';
 
 import {
   ERROR,
@@ -23,21 +28,24 @@ const styles = theme => ({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    background: colors.compoundGreen,
+    //background: colors.compoundGreen,
     minWidth: '100vw',
-    padding: '36px 24px'
+    padding: '36px 24px',
+    backgroundPosition: '0 -30vh',
+    backgroundImage: `radial-gradient(50% 50% at 50% 50%, ${transparentize(0.9, '#00AEE9')} 0%, ${transparentize(1, '#FFFFFF')} 100%)`
   },
   connectHeading: {
-    maxWidth: '300px',
+    maxWidth: '400px',
     textAlign: 'center',
-    color: colors.white
+    color: '#00AEE9'
   },
   connectContainer: {
     padding: '20px'
   },
   actionButton: {
-    color: colors.white,
-    borderColor: colors.white
+    background: '#bcecfd',
+    color: '#00AEE9',
+    borderColor: '#00AEE9'
   },
   notConnectedRoot: {
     flex: 1,
@@ -148,12 +156,14 @@ class Account extends Component {
     return (
       <div className={ classes.notConnectedRoot }>
         <div className={ classes.connectHeading }>
-          <Typography variant='h3'>Connect a wallet to continue</Typography>
+        <Typography variant='h2'>Token faucet demo dApp on Harmony</Typography>
+        <img src={harmonyLogo} />
+        <Typography variant='h4'>Connect a wallet to continue</Typography>
         </div>
         <div className={ classes.connectContainer }>
           <Button
             className={ classes.actionButton }
-            variant="outlined"
+            variant=""
             color="primary"
             onClick={() => this.unlockClicked('onewallet')}
             disabled={ loading }
@@ -162,7 +172,7 @@ class Account extends Component {
           </Button><br /><br />
           <Button
             className={ classes.actionButton }
-            variant="outlined"
+            variant=""
             color="primary"
             onClick={() => this.unlockClicked('mathwallet')}
             disabled={ loading }

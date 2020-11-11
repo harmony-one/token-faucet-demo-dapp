@@ -8,6 +8,8 @@ import {
 import { colors } from '../../theme'
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 
+import { transparentize } from 'polished'
+
 import Loader from '../loader'
 import Snackbar from '../snackbar'
 
@@ -45,6 +47,24 @@ const styles = theme => ({
       minHeight: '50vh',
     }
   },
+  gradient: {
+    backgroundColor: colors.white,
+    '&:hover': {
+      backgroundColor: '#00AEE9',
+      '& .title': {
+        color: colors.white,
+      },
+      '& .icon': {
+        color: colors.white
+      }
+    },
+    '& .title': {
+      color: '#00AEE9',
+    },
+    '& .icon': {
+      color: '#00AEE9'
+    },
+  },
   green: {
     backgroundColor: colors.white,
     '&:hover': {
@@ -64,10 +84,16 @@ const styles = theme => ({
     },
   },
   title: {
-    padding: '24px',
-    paddingBottom: '0px',
+    padding: '24px 0 12px 0',
     [theme.breakpoints.up('sm')]: {
-      paddingBottom: '24px'
+      paddingBottom: '12px'
+    }
+  },
+  subTitle: {
+    padding: '0 0 12px 0',
+    fontSize: '12px',
+    [theme.breakpoints.up('sm')]: {
+      paddingBottom: '12px'
     }
   },
   icon: {
@@ -103,9 +129,10 @@ class Home extends Component {
 
     return (
       <div className={ classes.root }>
-        <Card className={ `${classes.card} ${classes.green}` } onClick={ () => { this.faucet() } }>
+        <Card className={ `${classes.card} ${classes.gradient}` } onClick={ () => { this.faucet() } }>
           <AttachMoneyIcon className={ `${classes.icon} icon` } />
           <Typography variant={'h3'} className={ `${classes.title} title` }>Faucet</Typography>
+          <Typography variant={'h6'} className={ `${classes.subTitle} title` }>(Click to request funds)</Typography>
         </Card>
         { loading && <Loader /> }
         { snackbarMessage && this.renderSnackbar() }
@@ -144,7 +171,7 @@ class Home extends Component {
         this.setState({ snackbarMessage: "An error occurred :(. Please try again!", snackbarType: "Error", loading: false })
       }
     })
-    .catch(function(err){
+    .catch((err) => {
       this.setState({ snackbarMessage: "An error occurred :(. Please try again!", snackbarType: "Error", loading: false })
     });
   }
