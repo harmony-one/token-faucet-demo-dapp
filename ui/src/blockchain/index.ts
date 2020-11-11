@@ -25,7 +25,6 @@ export class Hmy {
   private setClient(network: string) {
     switch (this.network) {
       case 'testnet':
-        console.log('Using the testnet network...\n');
         this.url = "https://api.s0.b.hmny.io";
         this.explorerUrl = "https://explorer.pops.one/#";
         this.chainType = ChainType.Harmony;
@@ -33,7 +32,6 @@ export class Hmy {
         break;
       
       case 'mainnet':
-        console.log('Using the mainnet network...\n');
         this.url = "https://api.s0.t.hmny.io";
         this.explorerUrl = "https://explorer.harmony.one/#";
         this.chainType = ChainType.Harmony;

@@ -44,8 +44,12 @@ export class MathWallet {
   @action public signIn() {
     if (!this.mathwallet) {
       this.initWallet();
-    } else {
-      return this.mathwallet.getAccount().then(account => {
+    }
+
+    try {
+      return this.mathwallet
+      .getAccount()
+      .then(account => {
         this.sessionType = `mathwallet`;
         this.address = account.address;
         this.isAuthorized = true;
@@ -54,7 +58,14 @@ export class MathWallet {
         this.syncLocalStorage();
   
         return Promise.resolve();
+      })
+      .catch(err => {
+        alert("An error occurred - please check that you have MathWallet installed and that it is properly configured!");
+        return Promise.reject();
       });
+    } catch (error) {
+      alert("An error occurred - please check that you have MathWallet installed and that it is properly configured!");
+      return Promise.reject();
     }
   }
 

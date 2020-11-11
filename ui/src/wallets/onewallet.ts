@@ -49,16 +49,27 @@ export class OneWallet {
       this.initWallet();
     }
 
-    return this.onewallet.getAccount().then(account => {
-      this.sessionType = `onewallet`;
-      this.address = account.address;
-      this.isAuthorized = true;
-      this.setBase16Address();
-
-      this.syncLocalStorage();
-
-      return Promise.resolve();
-    });
+    try {
+      return this.onewallet
+        .getAccount()
+        .then(account => {
+          this.sessionType = `onewallet`;
+          this.address = account.address;
+          this.isAuthorized = true;
+          this.setBase16Address();
+    
+          this.syncLocalStorage();
+    
+          return Promise.resolve();
+      })
+      .catch(err => {
+        alert("An error occurred - please check that you have OneWallet installed and that it is properly configured!");
+        return Promise.reject();
+      });
+    } catch (error) {
+      alert("An error occurred - please check that you have OneWallet installed and that it is properly configured!");
+      return Promise.reject();
+    }
   }
 
   @action public signOut() {

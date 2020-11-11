@@ -164,7 +164,6 @@ class Account extends Component {
         <div className={ classes.connectContainer }>
           <Button
             className={ classes.actionButton }
-            variant=""
             color="primary"
             onClick={() => this.unlockClicked('onewallet')}
             disabled={ loading }
@@ -173,7 +172,6 @@ class Account extends Component {
           </Button><br /><br />
           <Button
             className={ classes.actionButton }
-            variant=""
             color="primary"
             onClick={() => this.unlockClicked('mathwallet')}
             disabled={ loading }
@@ -188,9 +186,12 @@ class Account extends Component {
   unlockClicked = (walletType) => {
     const wallet = store.getStore(walletType);
     
-    wallet.signIn().then(() => {
+    wallet.signIn()
+    .then(() => {
       store.setStore({ wallet: wallet, account: { address: wallet.base16Address, bech32Address: wallet.address } })
       emitter.emit(CONNECTION_CONNECTED)
+    })
+    .catch((err) => {
     });
 
     //this.setState({ modalOpen: true, loading: true })
