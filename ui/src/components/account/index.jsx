@@ -158,7 +158,7 @@ class Account extends Component {
       <div className={ classes.notConnectedRoot }>
         <div className={ classes.connectHeading }>
         <Typography variant='h2'>Token faucet demo dApp on Harmony</Typography>
-        <img src={harmonyLogo} />
+        <img alt='Harmony logo' src={harmonyLogo} />
         <Typography variant='h4'>Connect a wallet to continue</Typography>
         </div>
         <div className={ classes.connectContainer }>
