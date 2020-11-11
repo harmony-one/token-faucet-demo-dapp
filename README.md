@@ -188,7 +188,9 @@ The UI also showcases the interaction with the faucet smart contract and allows 
 
 Harmony isn't currently compatible with MetaMask. There's also nothing similar to [web3-react](https://github.com/NoahZinsmeister/web3-react) right now.
 
-Harmony is looking into both MetaMask as well as creating a web3-react component compatible with OneWallet and MathWallet. Depending on when you read this, this tools might (or might not) have been implemented.
+Harmony is looking into both MetaMask support as well as creating a web3-react component compatible with OneWallet and MathWallet.
+
+Depending on when you read this, this tools might (or might not) have been implemented.
 
 #### Development & deployment
 
