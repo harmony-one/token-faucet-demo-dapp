@@ -8,8 +8,6 @@ import {
 import { colors } from '../../theme'
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 
-import { transparentize } from 'polished'
-
 import Loader from '../loader'
 import Snackbar from '../snackbar'
 
