@@ -9,7 +9,7 @@ import { colors } from '../../theme'
 import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
 
 import ColoredLoader from '../loader/coloredLoader'
-import Loader from '../loader'
+//import Loader from '../loader'
 import Snackbar from '../snackbar'
 
 // Added
