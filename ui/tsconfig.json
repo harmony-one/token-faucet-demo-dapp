@@ -10,7 +10,7 @@
     ],
     "sourceMap": true,
     "allowJs": false,
-    "jsx": "react-jsx",
+    "jsx": "react",
     "moduleResolution": "node",
     "rootDir": "src",
     "forceConsistentCasingInFileNames": true,
