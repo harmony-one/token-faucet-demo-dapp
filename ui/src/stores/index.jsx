@@ -1,4 +1,4 @@
-import config from '../config';
+import config from '../config'
 import async from 'async'
 import {
   ERROR,
@@ -9,14 +9,12 @@ import {
   GET_BALANCES_PERPETUAL,
   GET_BALANCES_PERPETUAL_RETURNED,
   WalletConnectionError
-} from '../constants';
+} from '../constants'
 
 import { OneWalletConnector } from '@harmony-react/onewallet-connector'
 import { MathWalletConnector } from '@harmony-react/mathwallet-connector'
 
-import { Hmy } from '../blockchain';
-
-import { toBech32 } from '@harmony-js/crypto'
+import { Hmy } from '../blockchain'
 
 const Dispatcher = require('flux').Dispatcher
 const Emitter = require('events').EventEmitter
@@ -26,7 +24,7 @@ const emitter = new Emitter()
 
 class Store {
   constructor() {
-    const hmy = new Hmy(config.network);
+    const hmy = new Hmy(config.network)
     const onewallet = new OneWalletConnector({ chainId: hmy.client.chainId })
     const mathwallet = new MathWalletConnector({ chainId: hmy.client.chainId })
 
@@ -67,68 +65,35 @@ class Store {
       function (payload) {
         switch (payload.type) {
           case CONFIGURE:
-            this.configure(payload);
-            break;
+            this.configure(payload)
+            break
           case GET_BALANCES:
-            this.getBalances(payload);
-            break;
+            this.getBalances(payload)
+            break
           case GET_BALANCES_PERPETUAL:
-            this.getBalancesPerpetual(payload);
-            break;
+            this.getBalancesPerpetual(payload)
+            break
           default: {
           }
         }
       }.bind(this)
-    );
+    )
   }
 
   getStore(index) {
-    return(this.store[index]);
-  };
+    return(this.store[index])
+  }
 
   setStore(obj) {
     this.store = {...this.store, ...obj}
-    return emitter.emit('StoreUpdated');
-  };
-
-  async getWallet() {
-    var wallet = null;
-
-    const wallets = [
-      this.getStore('wallet'),
-      this.getStore('onewallet'),
-      this.getStore('mathwallet')
-    ];
-
-    for (const potentialWallet of wallets) {
-      if (potentialWallet) {
-        try {
-          const isAuthorized = await potentialWallet.isAuthorized();
-    
-          if (isAuthorized) {
-            const account = await potentialWallet.getAccount();
-            
-            if (account) {
-              wallet = potentialWallet;
-              this.setStore({ 
-                wallet: wallet,
-                account: { address: account, bech32Address: toBech32(account) } 
-              });
-            }
-            break;
-          }
-        } catch (error) {}
-      }
-    }
-
-    return wallet;
+    return emitter.emit('StoreUpdated')
   }
 
   configure = async () => {
-    const hmy = store.getStore('hmy');
-    let currentBlock = await hmy.getBlockNumber();
+    const hmy = store.getStore('hmy')
+    let currentBlock = await hmy.getBlockNumber()
 
-    store.setStore({ currentBlock: currentBlock });
+    store.setStore({ currentBlock: currentBlock })
 
     window.setTimeout(() => {
       emitter.emit(CONFIGURE_RETURNED)
@@ -136,18 +101,17 @@ class Store {
   }
 
   getBalancesPerpetual = async () => {
-    const tokens = store.getStore('tokens');
-    const account = store.getStore('account');
+    const tokens = store.getStore('tokens')
+    const account = store.getStore('account')
+    const hmy = store.getStore('hmy')
 
-    const hmy = store.getStore('hmy');
-
-    const currentBlock = await hmy.getBlockNumber();
+    const currentBlock = await hmy.getBlockNumber()
 
     store.setStore({ currentBlock: currentBlock })
 
     async.map(tokens, (token, callback) => {
       async.parallel([
-        (callback) => { this.getERC20Balance(hmy, token, account, callback) },
+        (callback) => { this.getERC20Balance(hmy, token, account, callback) }
       ], (err, data) => {
         if(err) {
           console.log(err)
@@ -169,13 +133,13 @@ class Store {
   }
 
   getBalances = () => {
-    const tokens = store.getStore('tokens');
-    const account = store.getStore('account');
-    const hmy = store.getStore('hmy');
+    const tokens = store.getStore('tokens')
+    const account = store.getStore('account')
+    const hmy = store.getStore('hmy')
 
     async.map(tokens, (token, callback) => {
       async.parallel([
-        (callback) => { this.getERC20Balance(hmy, token, account, callback) },
+        (callback) => { this.getERC20Balance(hmy, token, account, callback) }
       ], (err, data) => {
         if(err) {
           console.log(err)
@@ -208,12 +172,12 @@ class Store {
         return callback(err)
       }
     } else {
-      callback(null);
+      callback(null)
     }
   }
 
   useFaucet = async () => {
-    const hmy = store.getStore('hmy');
+    const hmy = store.getStore('hmy')
     const account = store.getStore('account')
     const context = store.getStore('web3context')
     var connector = null
@@ -232,10 +196,10 @@ class Store {
   }
 }
 
-const store = new Store();
+const store = new Store()
 const stores = {
   store: store,
   dispatcher: dispatcher,
   emitter: emitter
 }
-export default stores;
+export default stores
