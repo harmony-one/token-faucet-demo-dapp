@@ -30,9 +30,6 @@ const useStyles = makeStyles(theme => ({
     textAlign: 'center',
     color: '#00AEE9'
   },
-  connectContainer: {
-    padding: '20px'
-  },
   actionButton: {
     background: '#bcecfd',
     color: '#00AEE9',
@@ -97,15 +94,13 @@ export default function Account() {
           <Typography variant='h2'>Token faucet demo dApp on Harmony</Typography>
           <img alt='Harmony logo' src={harmonyLogo} />
         </div>
-        <div className={ classes.connectContainer }>
         <Button
-            className={ classes.actionButton }
-            color="primary"
-            onClick={connectClicked}
-            >
-            <Typography>Connect your wallet</Typography>
-          </Button>
-        </div>
+          className={ classes.actionButton }
+          color="primary"
+          onClick={connectClicked}
+          >
+          <Typography>Connect your wallet</Typography>
+        </Button>
         { modalOpen && renderModal() }
       </div>
     )
