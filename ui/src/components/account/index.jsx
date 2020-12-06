@@ -1,6 +1,5 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-import { withStyles } from '@material-ui/core/styles';
+import React, { useState } from 'react';
+import { makeStyles } from '@material-ui/core/styles'
 import {
   Typography,
   Button,
@@ -12,18 +11,9 @@ import { colors } from '../../theme'
 
 import harmonyLogo from '../../assets/harmony.png';
 
-import {
-  ERROR,
-  CONNECTION_CONNECTED,
-  CONNECTION_DISCONNECTED,
-  CONFIGURE_RETURNED
-} from '../../constants/'
+import UnlockModal from '../unlock/unlockModal.jsx'
 
-import Store from "../../stores/";
-const emitter = Store.emitter
-const store = Store.store
-
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     flex: 1,
     display: 'flex',
@@ -94,112 +84,50 @@ const styles = theme => ({
     color: colors.white,
     background: colors.red
   }
-});
+}))
 
-class Account extends Component {
+export default function Account() {
+  const classes = useStyles()
+  const [modalOpen, setModalOpen] = useState(false)
 
-  constructor(props) {
-    super()
-
-    const account = store.getStore('account')
-
-    this.state = {
-      loading: false,
-      account: account,
-      assets: store.getStore('assets'),
-      modalOpen: false,
-    }
-  }
-  componentDidMount() {
-    emitter.on(ERROR, this.errorReturned);
-    emitter.on(CONNECTION_CONNECTED, this.connectionConnected);
-    emitter.on(CONNECTION_DISCONNECTED, this.connectionDisconnected);
-    emitter.on(CONFIGURE_RETURNED, this.configureReturned);
-  }
-
-  componentWillUnmount() {
-    emitter.removeListener(ERROR, this.errorReturned);
-    emitter.removeListener(CONNECTION_CONNECTED, this.connectionConnected);
-    emitter.removeListener(CONNECTION_DISCONNECTED, this.connectionDisconnected);
-    emitter.removeListener(CONFIGURE_RETURNED, this.configureReturned);
-  };
-
-  connectionConnected = () => {
-    //this.setState({ account: store.getStore('account') })
-  };
-
-  configureReturned = () => {
-    // this.props.history.push('/')
-  }
-
-  connectionDisconnected = () => {
-    this.setState({ account: store.getStore('account'), loading: false })
-  }
-
-  errorReturned = (error) => {
-    //TODO: handle errors
-  };
-
-  render() {
-    const { classes } = this.props;
-
-    return (
-      <div className={ classes.root }>
-        { this.renderNotConnected() }
-      </div>
-    )
-  };
-
-  renderNotConnected = () => {
-    const { classes } = this.props
-    const { loading } = this.state
-
+  const renderNotConnected = () => {
     return (
       <div className={ classes.notConnectedRoot }>
         <div className={ classes.connectHeading }>
-        <Typography variant='h2'>Token faucet demo dApp on Harmony</Typography>
-        <img alt='Harmony logo' src={harmonyLogo} />
-        <Typography variant='h4'>Connect a wallet to continue</Typography>
+          <Typography variant='h2'>Token faucet demo dApp on Harmony</Typography>
+          <img alt='Harmony logo' src={harmonyLogo} />
         </div>
         <div className={ classes.connectContainer }>
-          <Button
+        <Button
             className={ classes.actionButton }
             color="primary"
-            onClick={() => this.unlockClicked('onewallet')}
-            disabled={ loading }
+            onClick={() => connectClicked()}
             >
-            <Typography>Connect OneWallet</Typography>
-          </Button><br /><br />
-          <Button
-            className={ classes.actionButton }
-            color="primary"
-            onClick={() => this.unlockClicked('mathwallet')}
-            disabled={ loading }
-            >
-            <Typography>Connect MathWallet</Typography>
+            <Typography>Connect your wallet</Typography>
           </Button>
         </div>
+        { modalOpen && renderModal() }
       </div>
     )
   }
 
-  unlockClicked = (walletType) => {
-    const wallet = store.getStore(walletType);
-    
-    wallet.signIn()
-    .then(() => {
-      store.setStore({ wallet: wallet, account: { address: wallet.base16Address, bech32Address: wallet.address } })
-      emitter.emit(CONNECTION_CONNECTED)
-    })
-    .catch((err) => {
-    });
-
-    //this.setState({ modalOpen: true, loading: true })
+  const connectClicked = () => {
+    setModalOpen(true)
   }
 
-  closeModal = () => {
-    this.setState({ modalOpen: false, loading: false })
+  const closeModal = () => {
+    setModalOpen(false)
   }
+
+  const renderModal = () => {
+    return (
+      <UnlockModal closeModal={ closeModal } modalOpen={ modalOpen } />
+    )
+  }
+
+  return (
+    <div className={ classes.root }>
+      { renderNotConnected() }
+    </div>
+  )
 }
-
-export default withRouter(withStyles(styles)(Account));

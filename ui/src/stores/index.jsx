@@ -10,9 +10,12 @@ import {
   GET_BALANCES_PERPETUAL_RETURNED,
 } from '../constants';
 
-import { MathWallet } from '../wallets/mathwallet';
-import { OneWallet } from '../wallets/onewallet';
+import { OneWalletConnector } from '@harmony-react/onewallet-connector'
+import { MathWalletConnector } from '@harmony-react/mathwallet-connector'
+
 import { Hmy } from '../blockchain';
+
+import { toBech32 } from '@harmony-js/crypto'
 
 const Dispatcher = require('flux').Dispatcher;
 const Emitter = require('events').EventEmitter;
@@ -22,10 +25,9 @@ const emitter = new Emitter();
 
 class Store {
   constructor() {
-
     const hmy = new Hmy(config.network);
-    const mathwallet = new MathWallet(config.network, hmy.client);
-    const onewallet = new OneWallet(config.network, hmy.client);
+    const onewallet = new OneWalletConnector({ chainId: hmy.client.chainId });
+    const mathwallet = new MathWalletConnector({ chainId: hmy.client.chainId });
 
     this.store = {
       votingStatus: false,
@@ -88,7 +90,7 @@ class Store {
     return emitter.emit('StoreUpdated');
   };
 
-  getWallet() {
+  async getWallet() {
     var wallet = null;
 
     const wallets = [
@@ -98,10 +100,23 @@ class Store {
     ];
 
     for (const potentialWallet of wallets) {
-      if (potentialWallet && (potentialWallet.isAuthorized || potentialWallet.base16Address || potentialWallet.address)) {
-        wallet = potentialWallet;
-        this.setStore({ wallet: wallet, account: { address: wallet.base16Address, bech32Address: wallet.address } });
-        break;
+      if (potentialWallet) {
+        try {
+          const isAuthorized = await potentialWallet.isAuthorized();
+    
+          if (isAuthorized) {
+            const account = await potentialWallet.getAccount();
+            
+            if (account) {
+              wallet = potentialWallet;
+              this.setStore({ 
+                wallet: wallet,
+                account: { address: account, bech32Address: toBech32(account) } 
+              });
+            }
+            break;
+          }
+        } catch (error) {}
       }
     }
 
@@ -154,7 +169,7 @@ class Store {
 
   getBalances = () => {
     const tokens = store.getStore('tokens');
-    const account = store.getStore('account')
+    const account = store.getStore('account');
     const hmy = store.getStore('hmy');
 
     async.map(tokens, (token, callback) => {
@@ -180,7 +195,7 @@ class Store {
   }
 
   getERC20Balance = async (hmy, token, account, callback) => {
-    if (account) {
+    if (account && account.address) {
       let erc20Contract = hmy.client.contracts.createContract(require('../abi/ERC20.json'), token.address);
 
       try {
@@ -194,6 +209,16 @@ class Store {
     } else {
       callback(null);
     }
+  }
+
+  useFaucet = async () => {
+    const hmy = store.getStore('hmy');
+    const account = store.getStore('account');
+    const { connector } = store.getStore('web3context');
+
+    let faucetContract = hmy.client.contracts.createContract(require('../abi/Faucet.json'), config.addresses.faucet);
+    faucetContract = await connector.attachToContract(faucetContract);
+    return faucetContract.methods.fund(account.address).send({ ...hmy.gasOptions(), from: account.address })
   }
 }
 

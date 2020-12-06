@@ -1,6 +1,5 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-import { withStyles } from '@material-ui/core/styles';
+import React, { useState, useEffect } from "react";
+import { makeStyles } from '@material-ui/core/styles'
 import {
   Typography,
   Button,
@@ -8,17 +7,23 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
+import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
+import { Web3Provider } from "@ethersproject/providers"
+
 import {
   ERROR,
   CONNECTION_DISCONNECTED,
   CONNECTION_CONNECTED
 } from '../../constants'
 
+import HarmonyLogo from '../../assets/harmony.png'
+import MathWalletLogo from '../../assets/mathwallet.png'
+
 import Store from "../../stores";
 const emitter = Store.emitter
 const store = Store.store
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     flex: 1,
     height: 'auto',
@@ -66,67 +71,68 @@ const styles = theme => ({
     width: '100%'
   },
   closeIcon: {
-    position: 'fixed',
-    right: '12px',
-    top: '12px',
+    position: 'absolute',
+    right: '0px',
+    top: '0px',
     cursor: 'pointer'
   }
-});
+}))
 
-class Unlock extends Component {
+export default function Unlock({ closeModal }) {
+  const classes = useStyles()
+  const [, setError] = useState(null)
 
-  constructor(props) {
-    super()
-
-    this.state = {
-      error: null,
-      metamaskLoading: false,
-      ledgerLoading: false
+  useEffect(() => {
+    const errorOccurred = (err) => {
+      setError(err)
+    };
+  
+    const connectionConnected = () => {
+      if (closeModal != null) {
+        closeModal()
+      }
     }
-  }
-
-  componentDidMount() {
-    emitter.on(CONNECTION_CONNECTED, this.connectionConnected);
-    emitter.on(CONNECTION_DISCONNECTED, this.connectionDisconnected);
-    emitter.on(ERROR, this.error);
-  };
-
-  componentWillUnmount() {
-    emitter.removeListener(CONNECTION_CONNECTED, this.connectionConnected);
-    emitter.removeListener(CONNECTION_DISCONNECTED, this.connectionDisconnected);
-    emitter.removeListener(ERROR, this.error);
-  };
-
-  error = (err) => {
-    this.setState({ loading: false, error: err, metamaskLoading: false, ledgerLoading: false })
-  };
-
-  connectionConnected = () => {
-    if(this.props.closeModal != null) {
-      this.props.closeModal()
-    }
-  }
-
-  connectionDisconnected = () => {
-    if(this.props.closeModal != null) {
-      this.props.closeModal()
+  
+    const connectionDisconnected = () => {
+      if (closeModal != null) {
+        closeModal()
+      }
     }
 
-    //this.props.history.push('/') // state isn't fully reset
-    window.location.reload();
-  }
+    emitter.on(CONNECTION_CONNECTED, connectionConnected);
+    emitter.on(CONNECTION_DISCONNECTED, connectionDisconnected);
+    emitter.on(ERROR, errorOccurred);
 
-  render() {
-    const { classes, closeModal, t } = this.props;
+    return () => {
+      emitter.removeListener(CONNECTION_CONNECTED, connectionConnected)
+      emitter.removeListener(CONNECTION_DISCONNECTED, connectionDisconnected)
+      emitter.removeListener(ERROR, errorOccurred)
+    }
+  }, [closeModal])
 
-    return (
-      <div className={ classes.root }>
-        <div className={ classes.closeIcon } onClick={ closeModal }><CloseIcon /></div>
-        <div className={ classes.contentContainer }>
-        </div>
+  return (
+    <div className={ classes.root }>
+      <div className={ classes.closeIcon } onClick={ closeModal }><CloseIcon /></div>
+      <div className={ classes.contentContainer }>
+        <Web3ReactProvider getLibrary={ getLibrary }>
+          <WalletComponent closeModal={ closeModal } />
+        </Web3ReactProvider>
       </div>
-    )
-  };
+    </div>
+  )
+}
+
+function getLibrary(provider) {
+  var library
+
+  if (provider?.chainType === 'hmy') {
+    library = provider.blockchain
+  } else {
+    library = new Web3Provider(provider)
+    library.pollingInterval = 8000
+  }
+
+  return library
 }
 
 function onConnectionClicked(currentConnector, name, setActivatingConnector, activate) {
@@ -136,43 +142,56 @@ function onConnectionClicked(currentConnector, name, setActivatingConnector, act
 }
 
 function onDeactivateClicked(deactivate, connector) {
-  if(deactivate) {
+  if (deactivate) {
     deactivate()
   }
-
-  if (connector && connector.signOut) {
-    connector.signOut().then(() => {
-      store.setStore({ account: { } })
-      emitter.emit(CONNECTION_DISCONNECTED)
-    });
-  }
-
-  /*if(connector && connector.close) {
+  if (connector && connector.close) {
     connector.close()
-  }*/
+  }
+  store.setStore({ account: { }, web3context: null })
+  emitter.emit(CONNECTION_DISCONNECTED)
 }
 
-function MyComponent(props) {
-  var connectorsByName = store.getStore('connectorsByName');
-  const connector = connectorsByName["OneWallet"];
+function WalletComponent({ closeModal }) {
+  const context = useWeb3React()
+  const localContext = store.getStore('web3context')
+  var localConnector = null;
+  if (localContext) {
+    localConnector = localContext.connector
+  }
+  
+  const {
+    connector,
+    library,
+    account,
+    activate,
+    deactivate,
+    active,
+    error
+  } = context;
 
-  const { closeModal } = props
+  var connectorsByName = store.getStore('connectorsByName')
 
-  const [activatingConnector, setActivatingConnector] = React.useState();
-  React.useEffect(() => {
+  const [activatingConnector, setActivatingConnector] = React.useState()
+  useEffect(() => {
     if (activatingConnector && activatingConnector === connector) {
       setActivatingConnector(undefined);
     }
   }, [activatingConnector, connector]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (account && active && library) {
       store.setStore({ account: { address: account }, web3context: context })
       emitter.emit(CONNECTION_CONNECTED)
     }
   }, [account, active, closeModal, context, library]);
 
-  // React.useEffect(() => {
+  const [hoveredConnectorButtons, setHoveredConnectorButtons] = React.useState(new Map());
+  const updateHoveredConnectorButtons = (k,v) => {
+    setHoveredConnectorButtons(new Map(hoveredConnectorButtons.set(k,v)));
+  }
+
+  // useEffect(() => {
   //   if (storeContext && storeContext.active && !active) {
   //     console.log("we are deactive: "+storeContext.account)
   //     store.setStore({ account: {}, web3context: null })
@@ -195,13 +214,15 @@ function MyComponent(props) {
         const disabled =
            !!activatingConnector || !!error;
 
-        var url;
-        var display = name;
+        const hovered = hoveredConnectorButtons.get(name);
+        const dotColor = (connected && !hovered) ? '#4caf50' : '#FF0000';
 
+        var url;
+        var display = (hovered && connected) ? 'Disconnect' : name;
         if (name === 'OneWallet') {
-          url = require('../../assets/harmony.png')
+          url = HarmonyLogo
         } else if (name === 'MathWallet') {
-          url = require('../../assets/mathwallet.png')
+          url = MathWalletLogo
         }
 
         return (
@@ -218,8 +239,10 @@ function MyComponent(props) {
               } }
               variant='outlined'
               color='primary'
+              onMouseEnter={() => updateHoveredConnectorButtons(name, true) }
+              onMouseLeave={() => updateHoveredConnectorButtons(name, false) }
               onClick={() => {
-                onConnectionClicked(currentConnector, name, setActivatingConnector, activate)
+                connected ? onDeactivateClicked(deactivate, currentConnector) : onConnectionClicked(currentConnector, name, setActivatingConnector, activate)
               }}
               disabled={ disabled }>
               <Typography style={ {
@@ -242,7 +265,7 @@ function MyComponent(props) {
                 }
               } src={url} alt=""/> }
               { activating && <CircularProgress size={ 15 } style={{marginRight: '10px'}} /> }
-              { (!activating && connected) && <div style={{ background: '#4caf50', borderRadius: '10px', width: '10px', height: '10px', marginRight: '10px' }}></div> }
+              { (!activating && connected) && <div style={{ background: dotColor, borderRadius: '10px', width: '10px', height: '10px', marginRight: '10px' }}></div> }
             </Button>
           </div>
         )
@@ -259,7 +282,7 @@ function MyComponent(props) {
           } }
           variant='outlined'
           color='primary'
-          onClick={() => { onDeactivateClicked(deactivate, connector); }}>
+          onClick={() => { onDeactivateClicked(deactivate, connector || localConnector); }}>
           <Typography style={ {
               marginLeft: '12px',
               fontWeight: '700',
@@ -267,13 +290,10 @@ function MyComponent(props) {
             } }
             variant={ 'h5'}
             color='primary'>
-            Log out
+            Deactivate
           </Typography>
         </Button>
       </div>
     </div>
   )
-
 }
-
-export default (withRouter(withStyles(styles)(Unlock)));

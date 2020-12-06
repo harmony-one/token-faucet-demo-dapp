@@ -1,23 +1,19 @@
-import React, { Component } from "react";
-import { withRouter } from "react-router-dom";
-import { withStyles } from '@material-ui/core/styles';
+import React, { useState } from "react"
+import { makeStyles } from '@material-ui/core/styles'
 import {
   Card,
   Typography,
 } from '@material-ui/core';
 import { colors } from '../../theme'
-import AttachMoneyIcon from '@material-ui/icons/AttachMoney';
+import AttachMoneyIcon from '@material-ui/icons/AttachMoney'
 
 import ColoredLoader from '../loader/coloredLoader'
-//import Loader from '../loader'
 import Snackbar from '../snackbar'
 
-// Added
-import config from "../../config";
 import Store from "../../stores";
 const store = Store.store
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     flex: 1,
     display: 'flex',
@@ -104,77 +100,54 @@ const styles = theme => ({
   link: {
     textDecoration: 'none'
   }
-});
+}));
 
-class Home extends Component {
+export default function Home() {
+  const classes = useStyles();
+  const [snackbarMessage, setSnackbarMessage] = useState(null)
+  const [snackbarType, setSnackbarType] = useState(null)
+  const [loading, setLoading] = useState(false)
 
-  constructor(props) {
-    super()
-
-    this.state = {
-      snackbarMessage: null,
-      snackbarType: null,
-      loading: false,
-    }
-  }
-
-  render() {
-    const { classes } = this.props;
-
-    const {
-      snackbarMessage,
-      loading
-    } = this.state
-
-    return (
-      <div className={ classes.root }>
-        <Card className={ `${classes.card} ${classes.gradient}` } onClick={ () => { this.faucet() } }>
-          <AttachMoneyIcon className={ `${classes.icon} icon` } />
-          <Typography variant={'h3'} className={ `${classes.title} title` }>Faucet</Typography>
-          <Typography variant={'h6'} className={ `${classes.subTitle} title` }>(Click to request funds)</Typography>
-        </Card>
-        { loading && <ColoredLoader /> }
-        { snackbarMessage && this.renderSnackbar() }
-      </div>
-    )
-  };
-
-  nav = (screen) => {
-    this.props.history.push(screen)
-  }
-
-  renderSnackbar = () => {
-    var {
-      snackbarType,
-      snackbarMessage
-    } = this.state
+  const renderSnackbar = () => {
     return <Snackbar type={ snackbarType } message={ snackbarMessage } open={true}/>
   };
 
-  faucet = async () => {
-    const hmy = store.getStore('hmy');
-    const wallet = store.getWallet();
-    const account = store.getStore('account');
+  const faucet = async () => {
+    setSnackbarMessage(null)
+    setSnackbarType(null)
+    setLoading(true)
 
-    let faucetContract = hmy.client.contracts.createContract(require('../../abi/Faucet.json'), config.addresses.faucet);
-    faucetContract = wallet.attachToContract(faucetContract);
+    const hmy = store.getStore('hmy')
+    
+    try {
+      const res = await store.useFaucet()
 
-    this.setState({ snackbarMessage: null, snackbarType: null, loading: true })
-
-    await faucetContract.methods.fund(account.address).send({ ...hmy.gasOptions(), from: account.address })
-    .then((res) => {
       if (res.status === 'called' || res.status === 'call') {
         const url = `${hmy.explorerUrl}/tx/${res.transaction.receipt.transactionHash}`
-        this.setState({ snackbarMessage: url, snackbarType: "Hash", loading: false })
+        setSnackbarMessage(url)
+        setSnackbarType("Hash")
+        setLoading(false)
       } else {
-        this.setState({ snackbarMessage: "An error occurred :(. Please try again!", snackbarType: "Error", loading: false })
+        setSnackbarMessage("An error occurred :(. Please try again!")
+        setSnackbarType("Error")
+        setLoading(false)
       }
-    })
-    .catch((err) => {
-      this.setState({ snackbarMessage: "An error occurred :(. Please try again!", snackbarType: "Error", loading: false })
-    });
+    } catch (error) {
+      setSnackbarMessage("An error occurred :(. Please try again!")
+      setSnackbarType("Error")
+      setLoading(false)
+    }
   }
 
+  return (
+    <div className={ classes.root }>
+      <Card className={ `${classes.card} ${classes.gradient}` } onClick={ () => { faucet() } }>
+        <AttachMoneyIcon className={ `${classes.icon} icon` } />
+        <Typography variant={'h3'} className={ `${classes.title} title` }>Faucet</Typography>
+        <Typography variant={'h6'} className={ `${classes.subTitle} title` }>(Click to request funds)</Typography>
+      </Card>
+      { loading && <ColoredLoader /> }
+      { snackbarMessage && renderSnackbar() }
+    </div>
+  )
 }
-
-export default (withRouter(withStyles(styles)(Home)));
