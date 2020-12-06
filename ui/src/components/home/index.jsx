@@ -10,6 +10,8 @@ import AttachMoneyIcon from '@material-ui/icons/AttachMoney'
 import ColoredLoader from '../loader/coloredLoader'
 import Snackbar from '../snackbar'
 
+import { WalletConnectionError } from '../../constants';
+
 import Store from "../../stores";
 const store = Store.store
 
@@ -133,7 +135,12 @@ export default function Home() {
         setLoading(false)
       }
     } catch (error) {
-      setSnackbarMessage("An error occurred :(. Please try again!")
+      if (error instanceof WalletConnectionError) {
+        setSnackbarMessage("Please connect a wallet and then try again!")
+      } else {
+        setSnackbarMessage("An error occurred :(. Please try again!")
+      }
+
       setSnackbarType("Error")
       setLoading(false)
     }

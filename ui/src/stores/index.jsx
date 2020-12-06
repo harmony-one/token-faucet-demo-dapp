@@ -1,5 +1,5 @@
-import config from "../config";
-import async from 'async';
+import config from '../config';
+import async from 'async'
 import {
   ERROR,
   CONFIGURE,
@@ -8,6 +8,7 @@ import {
   GET_BALANCES_RETURNED,
   GET_BALANCES_PERPETUAL,
   GET_BALANCES_PERPETUAL_RETURNED,
+  WalletConnectionError
 } from '../constants';
 
 import { OneWalletConnector } from '@harmony-react/onewallet-connector'
@@ -17,17 +18,17 @@ import { Hmy } from '../blockchain';
 
 import { toBech32 } from '@harmony-js/crypto'
 
-const Dispatcher = require('flux').Dispatcher;
-const Emitter = require('events').EventEmitter;
+const Dispatcher = require('flux').Dispatcher
+const Emitter = require('events').EventEmitter
 
-const dispatcher = new Dispatcher();
-const emitter = new Emitter();
+const dispatcher = new Dispatcher()
+const emitter = new Emitter()
 
 class Store {
   constructor() {
     const hmy = new Hmy(config.network);
-    const onewallet = new OneWalletConnector({ chainId: hmy.client.chainId });
-    const mathwallet = new MathWalletConnector({ chainId: hmy.client.chainId });
+    const onewallet = new OneWalletConnector({ chainId: hmy.client.chainId })
+    const mathwallet = new MathWalletConnector({ chainId: hmy.client.chainId })
 
     this.store = {
       votingStatus: false,
@@ -196,15 +197,15 @@ class Store {
 
   getERC20Balance = async (hmy, token, account, callback) => {
     if (account && account.address) {
-      let erc20Contract = hmy.client.contracts.createContract(require('../abi/ERC20.json'), token.address);
+      let erc20Contract = hmy.client.contracts.createContract(require('../abi/ERC20.json'), token.address)
 
       try {
-        var balance = await erc20Contract.methods.balanceOf(account.address).call(hmy.gasOptions());
+        var balance = await erc20Contract.methods.balanceOf(account.address).call(hmy.gasOptions())
         balance = parseFloat(balance)/10**token.decimals
         callback(null, Math.ceil(balance))
-      } catch(ex) {
-        console.log(ex);
-        return callback(ex)
+      } catch(err) {
+        console.log(err)
+        return callback(err)
       }
     } else {
       callback(null);
@@ -213,11 +214,20 @@ class Store {
 
   useFaucet = async () => {
     const hmy = store.getStore('hmy');
-    const account = store.getStore('account');
-    const { connector } = store.getStore('web3context');
+    const account = store.getStore('account')
+    const context = store.getStore('web3context')
+    var connector = null
 
-    let faucetContract = hmy.client.contracts.createContract(require('../abi/Faucet.json'), config.addresses.faucet);
-    faucetContract = await connector.attachToContract(faucetContract);
+    if (context) {
+      connector = context.connector
+    }
+
+    if (!connector) {
+      throw new WalletConnectionError('No wallet connected')
+    }
+
+    let faucetContract = hmy.client.contracts.createContract(require('../abi/Faucet.json'), config.addresses.faucet)
+    faucetContract = await connector.attachToContract(faucetContract)
     return faucetContract.methods.fund(account.address).send({ ...hmy.gasOptions(), from: account.address })
   }
 }

@@ -57,3 +57,5 @@ export const GET_VOTE_STATUS = 'GET_VOTE_STATUS'
 export const GET_VOTE_STATUS_RETURNED = 'GET_VOTE_STATUS_RETURNED'
 
 export const WALLET_LOCKED = 'WALLET_LOCKED'
+
+export class WalletConnectionError extends Error {}
