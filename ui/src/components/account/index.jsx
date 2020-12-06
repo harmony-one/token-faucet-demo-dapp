@@ -101,7 +101,7 @@ export default function Account() {
         <Button
             className={ classes.actionButton }
             color="primary"
-            onClick={() => connectClicked()}
+            onClick={connectClicked}
             >
             <Typography>Connect your wallet</Typography>
           </Button>

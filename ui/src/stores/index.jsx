@@ -14,7 +14,7 @@ import {
 import { OneWalletConnector } from '@harmony-react/onewallet-connector'
 import { MathWalletConnector } from '@harmony-react/mathwallet-connector'
 
-import { Hmy } from '../blockchain'
+import { Hmy } from '@harmony-utils/wrappers'
 
 const Dispatcher = require('flux').Dispatcher
 const Emitter = require('events').EventEmitter

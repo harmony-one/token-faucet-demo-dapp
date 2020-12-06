@@ -148,7 +148,7 @@ export default function Home() {
 
   return (
     <div className={ classes.root }>
-      <Card className={ `${classes.card} ${classes.gradient}` } onClick={ () => { faucet() } }>
+      <Card className={ `${classes.card} ${classes.gradient}` } onClick={ () => faucet() }>
         <AttachMoneyIcon className={ `${classes.icon} icon` } />
         <Typography variant={'h3'} className={ `${classes.title} title` }>Faucet</Typography>
         <Typography variant={'h6'} className={ `${classes.subTitle} title` }>(Click to request funds)</Typography>
