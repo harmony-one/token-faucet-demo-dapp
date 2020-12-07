@@ -1467,9 +1467,9 @@
     bn.js "^4.11.8"
 
 "@harmony-react/abstract-connector@latest":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@harmony-react/abstract-connector/-/abstract-connector-0.0.6.tgz#72a971ba71fdc21535df344534b6a5de43eb5eeb"
-  integrity sha512-9ibPLmgjMAsfOlQASM4k0T039/vhcElpS1F28oV0doSiZViO4AdywH3Uh2VdwdHEJT/9rGi/Tc0vhtL3Y7zCmw==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@harmony-react/abstract-connector/-/abstract-connector-1.0.2.tgz#911e46c5426ced6c3463d8023231bd31ca86f710"
+  integrity sha512-EDvFxQc1Qao1r6ryOIj06neOt8VSH+sY7Flq9V9eEXSf2Gck1hvTDNQX2jvLgBdVPt1BPc3dzczEX5P2aVf8dA==
   dependencies:
     "@harmony-js/core" "^0.1.55"
     "@harmony-react/types" latest
@@ -1478,9 +1478,9 @@
     tiny-warning "^1.0.3"
 
 "@harmony-react/mathwallet-connector@latest":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@harmony-react/mathwallet-connector/-/mathwallet-connector-0.0.6.tgz#97a88eb1b988a267204524194e00a90977a4380a"
-  integrity sha512-q3tB85JK6VDuirqQ7r0QMnVpJhlq3eG4DkvBmftqqjQ/rZzju+/WKgUSO+Iih7DbQm1JF5gXjg0GmlvmcAc8WA==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@harmony-react/mathwallet-connector/-/mathwallet-connector-1.0.2.tgz#c10e87b9fa4981ff83a6393600e62b74798a1be4"
+  integrity sha512-gHPnB/j2zuQhCn9K+tL7EwAi+2R8v0day+aFiBNszv8z+gm6GfUJJqJeMEmzj/dMofwQN/0b44v6vFPPHr1zow==
   dependencies:
     "@harmony-js/core" "^0.1.55"
     "@harmony-react/abstract-connector" latest
@@ -1488,9 +1488,9 @@
     tiny-warning "^1.0.3"
 
 "@harmony-react/onewallet-connector@latest":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@harmony-react/onewallet-connector/-/onewallet-connector-0.0.6.tgz#77537d5083555b6a85f4a05c96549e76ad2b502c"
-  integrity sha512-NMw2ayJsJ2h/GxeizjCZcrw86uofhlB7yZ6yKd+z6Db6KWRp+9erQI94ftTw6XGPiIHQMZSJUXqg+OnRCtVgLA==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@harmony-react/onewallet-connector/-/onewallet-connector-1.0.2.tgz#1cfa2c7c94423364334857113ec9bb8229f752df"
+  integrity sha512-wZHXBZ8FecA1pRh8Ap7aKwLTI5cwBcHodKo+K5Q+YDljlw47oUsljwYCpawtYuM5rLHGjaX/38lM8xd82KKV4A==
   dependencies:
     "@harmony-js/core" "^0.1.55"
     "@harmony-react/abstract-connector" latest
@@ -1498,9 +1498,9 @@
     tiny-warning "^1.0.3"
 
 "@harmony-react/types@latest":
-  version "0.0.6"
-  resolved "https://registry.yarnpkg.com/@harmony-react/types/-/types-0.0.6.tgz#5b5fbd1581adabe00784107cb66a0f7379d28062"
-  integrity sha512-SclgarW3rsuicZ5yhXm3gy3KWEXVduw2D4ZB5E0Qb09x4/k86k7uF6IChGJlUNtD+CfNlohoP0Xv+19Rvvaf0g==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@harmony-react/types/-/types-1.0.2.tgz#aaa7c11b68ced71f6a742759d5172aa6c4336684"
+  integrity sha512-AyqsMFOfEVyakYqylRoPpyYMlbr8JrNkD2LizJnFe3GA3NlixJYXdZ68UU+ct+C4XaXAXt53zPkPo6TOqsy9Pg==
 
 "@harmony-utils/wrappers@latest":
   version "0.0.1"
