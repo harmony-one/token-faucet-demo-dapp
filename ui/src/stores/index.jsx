@@ -34,11 +34,9 @@ class Store {
       currentBlock: 0,
       universalGasPrice: '70',
       account: {},
-      web3: null,
       hmy: hmy,
-      onewallet: onewallet,
-      mathwallet: mathwallet,
-      wallet: null,
+      web3: null,
+      web3context: null,
       connectorsByName: {
         OneWallet: onewallet,
         MathWallet: mathwallet,
@@ -52,7 +50,6 @@ class Store {
           balance: 0
         }
       ],
-      web3context: null,
       languages: [
         {
           language: 'English',
