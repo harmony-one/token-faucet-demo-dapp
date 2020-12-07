@@ -10,7 +10,7 @@ import AttachMoneyIcon from '@material-ui/icons/AttachMoney'
 import ColoredLoader from '../loader/coloredLoader'
 import Snackbar from '../snackbar'
 
-import { WalletConnectionError } from '../../constants';
+import { WalletConnectionError } from '../../constants'
 
 import Store from "../../stores";
 const store = Store.store
@@ -112,37 +112,39 @@ export default function Home() {
 
   const renderSnackbar = () => {
     return <Snackbar type={ snackbarType } message={ snackbarMessage } open={true}/>
-  };
+  }
 
   const faucet = async () => {
-    setSnackbarMessage(null)
-    setSnackbarType(null)
-    setLoading(true)
-
-    const hmy = store.getStore('hmy')
-    
-    try {
-      const res = await store.useFaucet()
-
-      if (res.status === 'called' || res.status === 'call') {
-        const url = `${hmy.explorerUrl}/tx/${res.transaction.receipt.transactionHash}`
-        setSnackbarMessage(url)
-        setSnackbarType("Hash")
-        setLoading(false)
-      } else {
-        setSnackbarMessage("An error occurred :(. Please try again!")
+    if (!loading) {
+      setSnackbarMessage(null)
+      setSnackbarType(null)
+      setLoading(true)
+  
+      const hmy = store.getStore('hmy')
+      
+      try {
+        const res = await store.useFaucet()
+  
+        if (res.status === 'called' || res.status === 'call') {
+          const url = `${hmy.explorerUrl}/tx/${res.transaction.receipt.transactionHash}`
+          setSnackbarMessage(url)
+          setSnackbarType("Hash")
+          setLoading(false)
+        } else {
+          setSnackbarMessage("An error occurred :(. Please try again!")
+          setSnackbarType("Error")
+          setLoading(false)
+        }
+      } catch (error) {
+        if (error instanceof WalletConnectionError) {
+          setSnackbarMessage("Please connect a wallet and then try again!")
+        } else {
+          setSnackbarMessage("An error occurred :(. Please try again!")
+        }
+  
         setSnackbarType("Error")
         setLoading(false)
       }
-    } catch (error) {
-      if (error instanceof WalletConnectionError) {
-        setSnackbarMessage("Please connect a wallet and then try again!")
-      } else {
-        setSnackbarMessage("An error occurred :(. Please try again!")
-      }
-
-      setSnackbarType("Error")
-      setLoading(false)
     }
   }
 
