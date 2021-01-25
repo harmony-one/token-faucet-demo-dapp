@@ -50,6 +50,7 @@ async function deployContract(contractName, args) {
   };
 
   let response = await contract.methods.contractConstructor(options).send(network.gasOptions());
+  //console.log(response.transaction.receipt.transactionHash);
   const contractAddress = response.transaction.receipt.contractAddress;
   return contractAddress;
 }
