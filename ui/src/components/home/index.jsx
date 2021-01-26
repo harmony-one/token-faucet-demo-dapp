@@ -119,7 +119,7 @@ export default function Home() {
       setSnackbarType(null)
       setLoading(true)
 
-      //try {
+      try {
         const res = await store.useFaucet()
   
         if (res && res.transactionHash && res.transactionHash !== '') {
@@ -132,7 +132,7 @@ export default function Home() {
           setSnackbarType("Error")
           setLoading(false)
         }
-      /*} catch (error) {
+      } catch (error) {
         if (error instanceof WalletConnectionError) {
           setSnackbarMessage("Please connect a wallet and then try again!")
         } else {
@@ -141,7 +141,7 @@ export default function Home() {
   
         setSnackbarType("Error")
         setLoading(false)
-      }*/
+      }
     }
   }
 
