@@ -13,6 +13,8 @@ import Account from './components/account';
 import Home from './components/home';
 import Header from './components/header';
 
+import { injected } from "./stores/connectors";
+
 import {
   CONNECTION_CONNECTED,
   CONNECTION_DISCONNECTED,
@@ -29,8 +31,45 @@ const store = Store.store
 
 export default function App() {
   const [account, setAccount] = useState(null)
+  
+  const updateAccount = () => {
+    window.ethereum.on('accountsChanged', function (accounts) {
+      store.setStore({ account: { address: accounts[0] } })
+
+      const web3context = store.getStore('web3context')
+      console.log(web3context)
+      if (web3context) {
+        emitter.emit(CONNECTION_CONNECTED)
+      }
+    })
+  }
 
   useEffect(() => {
+    injected.isAuthorized().then(isAuthorized => {
+      if (isAuthorized) {
+        injected.activate()
+        .then((a) => {
+          if (a.account && a.provider) {
+            store.setStore({ account: { address: a.account }, web3context: { library: { provider: a.provider } } })
+            emitter.emit(CONNECTION_CONNECTED)
+            // store.connectToFirehose(a.account)
+          }
+        })
+        .catch((e) => {
+          console.log(e)
+        })
+      } else {
+      }
+    });
+
+    if (window.ethereum) {
+      updateAccount()
+    } else {
+      window.addEventListener('ethereum#initialized', updateAccount, {
+        once: true,
+      });
+    }
+
     const getBalancesReturned = () => {
       window.setTimeout(() => {
         dispatcher.dispatch({ type: GET_BALANCES_PERPETUAL, content: {} })

@@ -3,6 +3,20 @@ const { TruffleProvider } = require('@harmony-js/core')
 
 module.exports = {
   networks: {
+    localnet: {
+      network_id: '2',
+      provider: () => {
+        const truffleProvider = new TruffleProvider(
+          process.env.LOCALNET_URL,
+          { },
+          { shardID: 0, chainId: 2 },
+          { gasLimit: process.env.GAS_LIMIT, gasPrice: process.env.GAS_PRICE},
+        );
+        const newAcc = truffleProvider.addByPrivateKey(process.env.LOCALNET_PRIVATE_KEY);
+        truffleProvider.setSigner(newAcc);
+        return truffleProvider;
+      },
+    },
     testnet: {
       network_id: '2',
       provider: () => {

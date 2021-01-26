@@ -1,3 +1,4 @@
+import config from '../../config'
 import React, { useState } from "react"
 import { makeStyles } from '@material-ui/core/styles'
 import {
@@ -9,8 +10,6 @@ import AttachMoneyIcon from '@material-ui/icons/AttachMoney'
 
 import ColoredLoader from '../loader/coloredLoader'
 import Snackbar from '../snackbar'
-
-import { WalletConnectionError } from '../../constants'
 
 import Store from "../../stores";
 const store = Store.store
@@ -119,14 +118,12 @@ export default function Home() {
       setSnackbarMessage(null)
       setSnackbarType(null)
       setLoading(true)
-  
-      const hmy = store.getStore('hmy')
-      
-      try {
+
+      //try {
         const res = await store.useFaucet()
   
-        if (res.status === 'called' || res.status === 'call') {
-          const url = `${hmy.explorerUrl}/tx/${res.transaction.receipt.transactionHash}`
+        if (res && res.transactionHash && res.transactionHash !== '') {
+          const url = `${config.explorerUrl}/#/tx/${res.transactionHash}`
           setSnackbarMessage(url)
           setSnackbarType("Hash")
           setLoading(false)
@@ -135,7 +132,7 @@ export default function Home() {
           setSnackbarType("Error")
           setLoading(false)
         }
-      } catch (error) {
+      /*} catch (error) {
         if (error instanceof WalletConnectionError) {
           setSnackbarMessage("Please connect a wallet and then try again!")
         } else {
@@ -144,7 +141,7 @@ export default function Home() {
   
         setSnackbarType("Error")
         setLoading(false)
-      }
+      }*/
     }
   }
 

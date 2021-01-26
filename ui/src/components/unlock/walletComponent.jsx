@@ -12,9 +12,6 @@ import {
   CONNECTION_CONNECTED
 } from '../../constants'
 
-import HarmonyLogo from '../../assets/harmony.png'
-import MathWalletLogo from '../../assets/mathwallet.png'
-
 import Store from "../../stores";
 const emitter = Store.emitter
 const store = Store.store
@@ -47,6 +44,7 @@ export default function WalletComponent({ closeModal }) {
   }, [activatingConnector, connector])
 
   useEffect(() => {
+    console.log(context)
     if (account && active && library) {
       store.setStore({ account: { address: account }, web3context: context })
       emitter.emit(CONNECTION_CONNECTED)
@@ -103,11 +101,32 @@ export default function WalletComponent({ closeModal }) {
 
         var url;
         var display = (hovered && connected) ? 'Disconnect' : name;
-        if (name === 'OneWallet') {
-          url = HarmonyLogo
-        } else if (name === 'MathWallet') {
-          url = MathWalletLogo
-        }
+        if (name === 'MetaMask') {
+          url = require('../../assets/icn-metamask.svg').default
+        }/* else if (name === 'WalletConnect') {
+          url = require('../../assets/walletConnectIcon.svg').default
+        } else if (name === 'TrustWallet') {
+          url = require('../../assets/trustWallet.png').default
+        } else if (name === 'Portis') {
+          url = require('../../assets/portisIcon.png')
+        } else if (name === 'Fortmatic') {
+          url = require('../../assets/fortmaticIcon.png')
+        }*/ else if (name === 'Ledger') {
+          url = require('../../assets/icn-ledger.svg').default
+        }/* else if (name === 'Squarelink') {
+          url = require('../../assets/squarelink.png')
+        }*/ else if (name === 'Trezor') {
+          url = require('../../assets/trezor.png').default
+        }/* else if (name === 'Torus') {
+          url = require('../../assets/torus.jpg')
+        } else if (name === 'Authereum') {
+          url = require('../../assets/icn-aethereum.svg')
+        } else if (name === 'WalletLink') {
+          display = 'Coinbase Wallet'
+          url = require('../../assets/coinbaseWalletIcon.svg')
+        } else if (name === 'Frame') {
+          return ''
+        }*/
 
         return (
           <div key={name} style={{ padding: '12px 0px', display: 'flex', justifyContent: 'space-between'  }}>

@@ -7,14 +7,24 @@ import {
   GET_BALANCES,
   GET_BALANCES_RETURNED,
   GET_BALANCES_PERPETUAL,
-  GET_BALANCES_PERPETUAL_RETURNED,
-  WalletConnectionError
+  GET_BALANCES_PERPETUAL_RETURNED
 } from '../constants'
 
-import { OneWalletConnector } from '@harmony-react/onewallet-connector'
-import { MathWalletConnector } from '@harmony-react/mathwallet-connector'
+import Web3 from 'web3';
 
-import { Hmy } from '@harmony-utils/wrappers'
+import {
+  injected,
+  //walletconnect,
+  //walletlink,
+  ledger,
+  trezor,
+  //frame,
+  //fortmatic,
+  //portis,
+  //squarelink,
+  //torus,
+  //authereum
+} from "./connectors"
 
 const Dispatcher = require('flux').Dispatcher
 const Emitter = require('events').EventEmitter
@@ -24,22 +34,28 @@ const emitter = new Emitter()
 
 class Store {
   constructor() {
-    const hmy = new Hmy(config.network)
-    const onewallet = new OneWalletConnector({ chainId: hmy.client.chainId })
-    const mathwallet = new MathWalletConnector({ chainId: hmy.client.chainId })
 
     this.store = {
       votingStatus: false,
       governanceContractVersion: 2,
       currentBlock: 0,
-      universalGasPrice: '70',
+      universalGasPrice: '100',
       account: {},
-      hmy: hmy,
       web3: null,
       web3context: null,
       connectorsByName: {
-        OneWallet: onewallet,
-        MathWallet: mathwallet,
+        MetaMask: injected,
+        //TrustWallet: injected,
+        //WalletConnect: walletconnect,
+        //WalletLink: walletlink,
+        Ledger: ledger,
+        Trezor: trezor,
+        //Frame: frame,
+        //Fortmatic: fortmatic,
+        //Portis: portis,
+        //Squarelink: squarelink,
+        //Torus: torus,
+        //Authereum: authereum
       },
       tokens: [
         {
@@ -87,8 +103,8 @@ class Store {
   }
 
   configure = async () => {
-    const hmy = store.getStore('hmy')
-    let currentBlock = await hmy.getBlockNumber()
+    const web3 = new Web3(store.getStore('web3context').library.provider)
+    let currentBlock = await web3.eth.getBlockNumber()
 
     store.setStore({ currentBlock: currentBlock })
 
@@ -97,46 +113,53 @@ class Store {
     }, 100)
   }
 
+  getGasSettings = () => {
+    return config.gas
+  }
+
   getBalancesPerpetual = async () => {
     const tokens = store.getStore('tokens')
     const account = store.getStore('account')
-    const hmy = store.getStore('hmy')
+    const web3context = store.getStore('web3context')
 
-    const currentBlock = await hmy.getBlockNumber()
-
-    store.setStore({ currentBlock: currentBlock })
-
-    async.map(tokens, (token, callback) => {
-      async.parallel([
-        (callback) => { this.getERC20Balance(hmy, token, account, callback) }
-      ], (err, data) => {
+    if (web3context) {
+      const web3 = new Web3(web3context.library.provider)
+      const currentBlock = await web3.eth.getBlockNumber()
+  
+      store.setStore({ currentBlock: currentBlock })
+  
+      async.map(tokens, (token, callback) => {
+        async.parallel([
+          (callback) => { this.getERC20Balance(web3, token, account, callback) }
+        ], (err, data) => {
+          if(err) {
+            console.log(err)
+            return callback(err)
+          }
+  
+          token.balance = data[0]
+          callback(null, token)
+        })
+      }, (err, tokenData) => {
         if(err) {
           console.log(err)
-          return callback(err)
+          return emitter.emit(ERROR, err)
         }
-
-        token.balance = data[0]
-        callback(null, token)
+        store.setStore({tokens: tokenData})
+        emitter.emit(GET_BALANCES_PERPETUAL_RETURNED)
+        emitter.emit(GET_BALANCES_RETURNED)
       })
-    }, (err, tokenData) => {
-      if(err) {
-        console.log(err)
-        return emitter.emit(ERROR, err)
-      }
-      store.setStore({tokens: tokenData})
-      emitter.emit(GET_BALANCES_PERPETUAL_RETURNED)
-      emitter.emit(GET_BALANCES_RETURNED)
-    })
+    }
   }
 
   getBalances = () => {
     const tokens = store.getStore('tokens')
     const account = store.getStore('account')
-    const hmy = store.getStore('hmy')
+    const web3 = new Web3(store.getStore('web3context').library.provider)
 
     async.map(tokens, (token, callback) => {
       async.parallel([
-        (callback) => { this.getERC20Balance(hmy, token, account, callback) }
+        (callback) => { this.getERC20Balance(web3, token, account, callback) }
       ], (err, data) => {
         if(err) {
           console.log(err)
@@ -156,12 +179,12 @@ class Store {
     })
   }
 
-  getERC20Balance = async (hmy, token, account, callback) => {
+  getERC20Balance = async (web3, token, account, callback) => {
     if (account && account.address) {
-      let erc20Contract = hmy.client.contracts.createContract(require('../abi/ERC20.json'), token.address)
+      let erc20Contract = new web3.eth.Contract(require('../abi/ERC20.json'), token.address)
 
       try {
-        var balance = await erc20Contract.methods.balanceOf(account.address).call(hmy.gasOptions())
+        var balance = await erc20Contract.methods.balanceOf(account.address).call({ from: account.address });
         balance = parseFloat(balance)/10**token.decimals
         callback(null, Math.ceil(balance))
       } catch(err) {
@@ -174,22 +197,12 @@ class Store {
   }
 
   useFaucet = async () => {
-    const hmy = store.getStore('hmy')
+    const web3 = new Web3(store.getStore('web3context').library.provider)
     const account = store.getStore('account')
-    const context = store.getStore('web3context')
-    var connector = null
-
-    if (context) {
-      connector = context.connector
-    }
-
-    if (!connector) {
-      throw new WalletConnectionError('No wallet connected')
-    }
-
-    let faucetContract = hmy.client.contracts.createContract(require('../abi/Faucet.json'), config.addresses.faucet)
-    faucetContract = await connector.attachToContract(faucetContract)
-    return faucetContract.methods.fund(account.address).send({ ...hmy.gasOptions(), from: account.address })
+    const faucetContract = new web3.eth.Contract(require('../abi/Faucet.json'), config.addresses.faucet)
+    const gasSettings = this.getGasSettings()
+    
+    return faucetContract.methods.fund(account.address).send({ from: account.address, gasPrice: gasSettings.price, gasLimit: gasSettings.limit })
   }
 }
 

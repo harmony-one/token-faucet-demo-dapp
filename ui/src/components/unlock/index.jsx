@@ -104,15 +104,8 @@ export default function Unlock({ closeModal }) {
   }, [closeModal])
 
   const getLibrary = (provider) => {
-    var library
-  
-    if (provider?.chainType === 'hmy') {
-      library = provider.blockchain
-    } else {
-      library = new Web3Provider(provider)
-      library.pollingInterval = 8000
-    }
-  
+    var library = new Web3Provider(provider)
+    library.pollingInterval = 2000
     return library
   }
 
