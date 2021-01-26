@@ -9,7 +9,7 @@ import {
   CONNECTION_DISCONNECTED
 } from '../../constants'
 
-import { toBech32 } from '@harmony-js/crypto'
+//import { toBech32 } from '@harmony-js/crypto'
 
 import UnlockModal from '../unlock/unlockModal.jsx'
 import Balances from './balances.jsx'

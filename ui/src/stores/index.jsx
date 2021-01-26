@@ -7,7 +7,8 @@ import {
   GET_BALANCES,
   GET_BALANCES_RETURNED,
   GET_BALANCES_PERPETUAL,
-  GET_BALANCES_PERPETUAL_RETURNED
+  GET_BALANCES_PERPETUAL_RETURNED,
+  CONNECTION_DISCONNECTED
 } from '../constants'
 
 import Web3 from 'web3';
@@ -122,34 +123,37 @@ class Store {
     const account = store.getStore('account')
     const web3context = store.getStore('web3context')
 
-    if (web3context) {
-      const web3 = new Web3(web3context.library.provider)
-      const currentBlock = await web3.eth.getBlockNumber()
-  
-      store.setStore({ currentBlock: currentBlock })
-  
-      async.map(tokens, (token, callback) => {
-        async.parallel([
-          (callback) => { this.getERC20Balance(web3, token, account, callback) }
-        ], (err, data) => {
-          if(err) {
-            console.log(err)
-            return callback(err)
-          }
-  
-          token.balance = data[0]
-          callback(null, token)
-        })
-      }, (err, tokenData) => {
+    if (!web3context) {
+      emitter.emit(CONNECTION_DISCONNECTED)
+      return
+    }
+
+    const web3 = new Web3(web3context.library.provider)
+    const currentBlock = await web3.eth.getBlockNumber()
+
+    store.setStore({ currentBlock: currentBlock })
+
+    async.map(tokens, (token, callback) => {
+      async.parallel([
+        (callback) => { this.getERC20Balance(web3, token, account, callback) }
+      ], (err, data) => {
         if(err) {
           console.log(err)
-          return emitter.emit(ERROR, err)
+          return callback(err)
         }
-        store.setStore({tokens: tokenData})
-        emitter.emit(GET_BALANCES_PERPETUAL_RETURNED)
-        emitter.emit(GET_BALANCES_RETURNED)
+
+        token.balance = data[0]
+        callback(null, token)
       })
-    }
+    }, (err, tokenData) => {
+      if(err) {
+        console.log(err)
+        return emitter.emit(ERROR, err)
+      }
+      store.setStore({tokens: tokenData})
+      emitter.emit(GET_BALANCES_PERPETUAL_RETURNED)
+      emitter.emit(GET_BALANCES_RETURNED)
+    })
   }
 
   getBalances = () => {

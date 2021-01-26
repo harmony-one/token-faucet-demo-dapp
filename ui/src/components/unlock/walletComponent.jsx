@@ -44,7 +44,6 @@ export default function WalletComponent({ closeModal }) {
   }, [activatingConnector, connector])
 
   useEffect(() => {
-    console.log(context)
     if (account && active && library) {
       store.setStore({ account: { address: account }, web3context: context })
       emitter.emit(CONNECTION_CONNECTED)

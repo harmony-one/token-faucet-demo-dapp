@@ -37,7 +37,6 @@ export default function App() {
       store.setStore({ account: { address: accounts[0] } })
 
       const web3context = store.getStore('web3context')
-      console.log(web3context)
       if (web3context) {
         emitter.emit(CONNECTION_CONNECTED)
       }

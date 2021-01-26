@@ -4,7 +4,7 @@ const config = {
   pollingInterval: 2000,
   explorerUrl: 'https://explorer.pops.one',
   gas: {price: '100000000000', limit: '6721900'},
-  addresses: {"token": "0x283ac000d7d42a3b07b567b3823c11ec626b6083", "faucet": "0xa8d17261d7f532f571766c8b0a5263eb31ace123"}
+  addresses: {"token": "0x6c5AbE1059Af76691fF9448cd87e74A822C74ad6", "faucet": "0x1950D0521f7fA3DD90055Af7Bb3416A48722248e"}
 };
 
 export default config;
