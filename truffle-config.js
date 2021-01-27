@@ -1,8 +1,10 @@
 require('dotenv').config()
 const { TruffleProvider } = require('@harmony-js/core')
+const HDWalletProvider = require("@truffle/hdwallet-provider")
 
 module.exports = {
   networks: {
+    // Harmony
     localnet: {
       network_id: '2',
       provider: () => {
@@ -44,7 +46,39 @@ module.exports = {
         truffleProvider.setSigner(newAcc);
         return truffleProvider;
       },
-    }
+    },
+
+    // Ethereum
+    ropsten: {
+      provider: function() {
+        return new HDWalletProvider(process.env.ROPSTEN_PRIVATE_KEY, `https://ropsten.infura.io/v3/${process.env.INFURA_KEY}`)
+      },
+      network_id: 3,
+      gas: 5500000,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    rinkeby: {
+      provider: function() {
+        return new HDWalletProvider(process.env.RINKEBY_PRIVATE_KEY, `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`)
+      },
+      network_id: 4,
+      gas: 5500000,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    kovan: {
+      provider: function() {
+        return new HDWalletProvider(process.env.KOVAN_PRIVATE_KEY, `https://kovan.infura.io/v3/${process.env.INFURA_KEY}`)
+      },
+      network_id: 42,
+      gas: 5500000,
+      confirmations: 2,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
   },
 
   // Set default mocha options here, use special reporters etc.

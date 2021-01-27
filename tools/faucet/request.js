@@ -49,27 +49,28 @@ const { getAddress } = require("@harmony-js/crypto");
 const network = new Network(argv.network);
 
 const tokenContract = network.loadContract(`../build/contracts/TestToken.json`, tokenAddress, argv.privateKey);
-const tokenInstance = tokenContract.methods;
-
 const faucetContract = network.loadContract(`../build/contracts/Faucet.json`, faucetAddress, argv.privateKey);
-const faucetInstance = faucetContract.methods;
 
-const walletAddress = tokenContract.wallet.signer.address;
+const walletAddress = network.wallet;
 const walletAddressBech32 = getAddress(walletAddress).bech32;
 
 async function status() {
-  let balanceOf = await tokenInstance.balanceOf(walletAddress).call(network.gasOptions());
+  let balanceOf = await tokenContract.methods.balanceOf(walletAddress).call();
   console.log(`TestToken (${tokenAddress}) balance for address ${walletAddress} / ${walletAddressBech32} is: ${web3.utils.fromWei(balanceOf)}\n`);
 
-  let balance = await faucetInstance.balance().call(network.gasOptions());
+  let balance = await faucetContract.methods.balance().call();
   console.log(`The current balance of TestToken (${tokenAddress}) tokens in the faucet is: ${web3.utils.fromWei(balance)}`);
 }
 
 async function fund() {
   console.log(`Attempting to fund the address ${walletAddress} / ${walletAddressBech32} with TestToken tokens from the faucet (${faucetAddress}) ...`)
-  let tx = await faucetInstance.fund(walletAddress).send(network.gasOptions());
-  let txHash = tx.transaction.receipt.transactionHash;
-  console.log(`Faucet funding tx hash: ${txHash}\n`);
+
+  var estimatedGas = await faucetContract.methods.fund(walletAddress).estimateGas({from: walletAddress});
+  console.log({estimatedGas});
+  estimatedGas = (estimatedGas < 55000) ? 55000 : estimatedGas
+  const tx = await faucetContract.methods.fund(walletAddress).send({from: walletAddress, gas: estimatedGas}); // Estimated gas doesn't work for this contract call - need to adjust it
+  
+  console.log(`Faucet topup tx hash: ${tx.transactionHash}\n`);
 }
 
 status()

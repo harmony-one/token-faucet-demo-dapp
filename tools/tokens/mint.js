@@ -42,19 +42,19 @@ const network = new Network(argv.network);
 const amount = web3.utils.toWei(argv.amount);
 
 const contract = network.loadContract('../build/contracts/TestToken.json', tokenAddress, 'deployer');
-const instance = contract.methods;
-const ownerAddress = contract.wallet.signer.address;
+
+const walletAddress = network.wallet;
 
 async function display() {
-  let total = await instance.totalSupply().call(network.gasOptions());
+  let total = await contract.methods.totalSupply().call();
   let formattedTotal = web3.utils.fromWei(total);
   console.log(`Current total supply for the TestToken is: ${formattedTotal}`);
 }
 
 async function mint() {
-  let result = await instance.mint(ownerAddress, amount).send(network.gasOptions());
-  let txHash = result.transaction.receipt.transactionHash;
-  console.log(`Minted ${argv.amount} TestToken tokens, tx hash: ${txHash}`);
+  const estimatedGas = await contract.methods.mint(walletAddress, amount).estimateGas({from: walletAddress});
+  const tx = await contract.methods.mint(walletAddress, amount).send({from: walletAddress, gas: estimatedGas});
+  console.log(`Minted ${argv.amount} TestToken tokens, tx hash: ${tx.transactionHash}`);
 }
 
 display()

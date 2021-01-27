@@ -205,8 +205,14 @@ class Store {
     const account = store.getStore('account')
     const faucetContract = new web3.eth.Contract(require('../abi/Faucet.json'), config.addresses.faucet)
     const gasSettings = this.getGasSettings()
+
+    const gasPrice = await web3.eth.getGasPrice()
+    const estimatedGas = await faucetContract.methods.fund(account.address).estimateGas(account.address, {from: account.address})
+
+    console.log(estimatedGas.toString())
+    console.log({gasPrice,estimatedGas})
     
-    return faucetContract.methods.fund(account.address).send({ from: account.address, gasPrice: gasSettings.price, gasLimit: gasSettings.limit })
+    return faucetContract.methods.fund(account.address).send({ from: account.address, gasPrice: gasSettings.price, gasLimit: estimatedGas.toString() })
   }
 }
 

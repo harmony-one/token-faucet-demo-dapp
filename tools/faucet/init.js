@@ -54,27 +54,26 @@ const network = new Network(argv.network);
 const amount = web3.utils.toWei(argv.amount);
 
 const tokenContract = network.loadContract(`../build/contracts/TestToken.json`, tokenAddress, 'deployer');
-const tokenInstance = tokenContract.methods;
-
 const faucetContract = network.loadContract(`../build/contracts/Faucet.json`, faucetAddress, 'deployer');
-const faucetInstance = faucetContract.methods;
 
-const walletAddress = tokenContract.wallet.signer.address;
+const walletAddress = network.wallet;
 const walletAddressBech32 = getAddress(walletAddress).bech32;
 
 async function status() {
-  let balanceOf = await tokenInstance.balanceOf(walletAddress).call(network.gasOptions());
+  let balanceOf = await tokenContract.methods.balanceOf(walletAddress).call();
   console.log(`TestToken (${tokenAddress}) balance for address ${walletAddress} / ${walletAddressBech32} is: ${web3.utils.fromWei(balanceOf)}\n`);
 
-  let balance = await faucetInstance.balance().call(network.gasOptions());
+  let balance = await faucetContract.methods.balance().call();
   console.log(`The current balance of TestToken (${tokenAddress}) tokens in the faucet is: ${web3.utils.fromWei(balance)}`);
 }
 
 async function topup() {
   console.log(`Attempting to topup the TestToken faucet (${faucetAddress}) with ${argv.amount} tokens...`)
-  let tx = await tokenInstance.transfer(faucetAddress, amount).send(network.gasOptions());
-  let txHash = tx.transaction.receipt.transactionHash;
-  console.log(`Faucet topup tx hash: ${txHash}\n`);
+  
+  const estimatedGas = await tokenContract.methods.transfer(faucetAddress, amount).estimateGas({from: walletAddress})
+  const tx = await tokenContract.methods.transfer(faucetAddress, amount).send({from: walletAddress, gas: estimatedGas})
+
+  console.log(`Faucet topup tx hash: ${tx.transactionHash}\n`);
 }
 
 status()
