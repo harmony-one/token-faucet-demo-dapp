@@ -7,6 +7,12 @@ const argv = yargs
     type: 'string',
     default: 'testnet'
   })
+  .option('api', {
+    alias: 'a',
+    description: 'Which api to use (web3 or ethers)',
+    type: 'string',
+    default: 'web3'
+  })
   .option('token', {
     alias: 't',
     description: 'The contract address for the token you want to interact with (in our case: TestToken)',
@@ -29,6 +35,7 @@ const argv = yargs
 
 const tokenAddress = argv.token;
 const faucetAddress = argv.faucet;
+const api = argv.api;
 
 if (tokenAddress == null || tokenAddress == '') {
   console.log('You must supply a token contract address using --token CONTRACT_ADDRESS or -t CONTRACT_ADDRESS!');
@@ -41,12 +48,12 @@ if (faucetAddress == null || faucetAddress == '') {
 }
 
 // Libs
-const web3 = require('web3');
+const Web3 = require('web3');
 const Network = require("../network.js");
 const { getAddress } = require("@harmony-js/crypto");
 
 // Vars
-const network = new Network(argv.network);
+const network = new Network(argv.network, api);
 
 const tokenContract = network.loadContract(`../build/contracts/TestToken.json`, tokenAddress, argv.privateKey);
 const faucetContract = network.loadContract(`../build/contracts/Faucet.json`, faucetAddress, argv.privateKey);
@@ -55,22 +62,36 @@ const walletAddress = network.wallet;
 const walletAddressBech32 = getAddress(walletAddress).bech32;
 
 async function status() {
-  let balanceOf = await tokenContract.methods.balanceOf(walletAddress).call();
-  console.log(`TestToken (${tokenAddress}) balance for address ${walletAddress} / ${walletAddressBech32} is: ${web3.utils.fromWei(balanceOf)}\n`);
+  var balanceOf, balance;
 
-  let balance = await faucetContract.methods.balance().call();
-  console.log(`The current balance of TestToken (${tokenAddress}) tokens in the faucet is: ${web3.utils.fromWei(balance)}`);
+  balanceOf = (api == 'web3') ? await tokenContract.methods.balanceOf(walletAddress).call() : await tokenContract.balanceOf(walletAddress)
+  balanceOf = (balanceOf._isBigNumber) ? balanceOf.toString() : balanceOf
+  console.log(`TestToken (${tokenAddress}) balance for address ${walletAddress} / ${walletAddressBech32} is: ${Web3.utils.fromWei(balanceOf)}\n`);
+
+  balance = (api == 'web3') ? await faucetContract.methods.balance().call() : await faucetContract.balance()
+  balance = (balance._isBigNumber) ? balance.toString() : balance
+  console.log(`The current balance of TestToken (${tokenAddress}) tokens in the faucet is: ${Web3.utils.fromWei(balance)}`);
 }
 
 async function fund() {
   console.log(`Attempting to fund the address ${walletAddress} / ${walletAddressBech32} with TestToken tokens from the faucet (${faucetAddress}) ...`)
 
-  var estimatedGas = await faucetContract.methods.fund(walletAddress).estimateGas({from: walletAddress});
-  console.log({estimatedGas});
-  estimatedGas = (estimatedGas < 55000) ? 55000 : estimatedGas
-  const tx = await faucetContract.methods.fund(walletAddress).send({from: walletAddress, gas: estimatedGas}); // Estimated gas doesn't work for this contract call - need to adjust it
+  var estimatedGas, tx, txHash;
   
-  console.log(`Faucet topup tx hash: ${tx.transactionHash}\n`);
+  if (api == 'web3') {
+    estimatedGas = await faucetContract.methods.fund(walletAddress).estimateGas({from: walletAddress});
+    estimatedGas = (estimatedGas < 100000) ? 100000 : estimatedGas // estimateGas is not currently working properly
+    tx = await faucetContract.methods.fund(walletAddress).send({from: walletAddress, gas: estimatedGas});
+    txHash = tx.transactionHash
+  } else if (api == 'ethers') {
+    estimatedGas = await faucetContract.estimateGas.fund(walletAddress, {from: walletAddress})
+    estimatedGas = (estimatedGas < 100000) ? 100000 : estimatedGas // estimateGas is not currently working properly
+    tx = await faucetContract.fund(walletAddress, {from: walletAddress, gasLimit: estimatedGas})
+    txHash = tx.hash
+    await tx.wait()
+  }
+
+  console.log(`Faucet topup tx hash: ${txHash}\n`);
 }
 
 status()

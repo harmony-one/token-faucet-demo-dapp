@@ -7,13 +7,19 @@ const argv = yargs
     type: 'string',
     default: 'testnet'
   })
+  .option('api', {
+    alias: 'a',
+    description: 'Which api to use (web3 or ethers)',
+    type: 'string',
+    default: 'web3'
+  })
   .option('token', {
     alias: 't',
     description: 'The token contract address',
     type: 'string'
   })
   .option('amount', {
-    alias: 'a',
+    alias: 'm',
     description: 'The amount of tokens to mint',
     type: 'string'
   })
@@ -22,6 +28,7 @@ const argv = yargs
   .argv;
 
 const tokenAddress = argv.token;
+const api = argv.api;
 
 if (tokenAddress == null || tokenAddress == '') {
   console.log('You must supply a token contract address using --token CONTRACT_ADDRESS or -t CONTRACT_ADDRESS!');
@@ -38,7 +45,7 @@ const web3 = require('web3');
 const Network = require("../network.js");
 
 // Vars
-const network = new Network(argv.network);
+const network = new Network(argv.network, api);
 const amount = web3.utils.toWei(argv.amount);
 
 const contract = network.loadContract('../build/contracts/TestToken.json', tokenAddress, 'deployer');
@@ -46,15 +53,29 @@ const contract = network.loadContract('../build/contracts/TestToken.json', token
 const walletAddress = network.wallet;
 
 async function display() {
-  let total = await contract.methods.totalSupply().call();
-  let formattedTotal = web3.utils.fromWei(total);
-  console.log(`Current total supply for the TestToken is: ${formattedTotal}`);
+  var totalSupply;
+
+  totalSupply = (api == 'web3') ? await contract.methods.totalSupply().call() : await contract.totalSupply()
+  totalSupply = (totalSupply._isBigNumber) ? totalSupply.toString() : totalSupply
+
+  console.log(`Current total supply for the TestToken is: ${web3.utils.fromWei(totalSupply)}`);
 }
 
 async function mint() {
-  const estimatedGas = await contract.methods.mint(walletAddress, amount).estimateGas({from: walletAddress});
-  const tx = await contract.methods.mint(walletAddress, amount).send({from: walletAddress, gas: estimatedGas});
-  console.log(`Minted ${argv.amount} TestToken tokens, tx hash: ${tx.transactionHash}`);
+  var estimatedGas, tx, txHash;
+  
+  if (api == 'web3') {
+    estimatedGas = await contract.methods.mint(walletAddress, amount).estimateGas({from: walletAddress});
+    tx = await contract.methods.mint(walletAddress, amount).send({from: walletAddress, gas: estimatedGas});
+    txHash = tx.transactionHash
+  } else if (api == 'ethers') {
+    estimatedGas = await contract.estimateGas.mint(walletAddress, amount, {from: walletAddress})
+    tx = await contract.mint(walletAddress, amount, {from: walletAddress, gasLimit: estimatedGas})
+    txHash = tx.hash
+    await tx.wait()
+  }
+
+  console.log(`Minted ${argv.amount} TestToken tokens, tx hash: ${txHash}`);
 }
 
 display()
