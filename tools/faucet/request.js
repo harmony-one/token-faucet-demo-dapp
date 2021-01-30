@@ -80,12 +80,10 @@ async function fund() {
   
   if (api == 'web3') {
     estimatedGas = await faucetContract.methods.fund(walletAddress).estimateGas({from: walletAddress});
-    estimatedGas = (estimatedGas < 100000) ? 100000 : estimatedGas // estimateGas is not currently working properly
     tx = await faucetContract.methods.fund(walletAddress).send({from: walletAddress, gas: estimatedGas});
     txHash = tx.transactionHash
   } else if (api == 'ethers') {
     estimatedGas = await faucetContract.estimateGas.fund(walletAddress, {from: walletAddress})
-    estimatedGas = (estimatedGas < 100000) ? 100000 : estimatedGas // estimateGas is not currently working properly
     tx = await faucetContract.fund(walletAddress, {from: walletAddress, gasLimit: estimatedGas})
     txHash = tx.hash
     await tx.wait()
