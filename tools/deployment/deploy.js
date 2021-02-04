@@ -5,7 +5,7 @@ const argv = yargs
     alias: 'n',
     description: 'Which network to use',
     type: 'string',
-    default: 'testnet'
+    default: 'harmony_testnet'
   })
   .option('api', {
     alias: 'a',

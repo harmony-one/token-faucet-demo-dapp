@@ -5,7 +5,7 @@ const argv = yargs
     alias: 'n',
     description: 'Which network to mint tokens on',
     type: 'string',
-    default: 'testnet'
+    default: 'harmony_testnet'
   })
   .option('api', {
     alias: 'a',
@@ -50,8 +50,6 @@ const amount = web3.utils.toWei(argv.amount);
 
 const contract = network.loadContract('../build/contracts/TestToken.json', tokenAddress, 'deployer');
 
-const walletAddress = network.walletAddress;
-
 async function display() {
   var totalSupply;
 
@@ -65,12 +63,12 @@ async function mint() {
   var estimatedGas, tx, txHash;
   
   if (api == 'web3') {
-    estimatedGas = await contract.methods.mint(walletAddress, amount).estimateGas({from: walletAddress});
-    tx = await contract.methods.mint(walletAddress, amount).send({from: walletAddress, gas: estimatedGas});
+    estimatedGas = await contract.methods.mint(network.walletAddress, amount).estimateGas({from: network.walletAddress});
+    tx = await contract.methods.mint(network.walletAddress, amount).send({from: network.walletAddress, gas: estimatedGas});
     txHash = tx.transactionHash
   } else if (api == 'ethers') {
-    estimatedGas = await contract.estimateGas.mint(walletAddress, amount, {from: walletAddress})
-    tx = await contract.mint(walletAddress, amount, {from: walletAddress, gasLimit: estimatedGas})
+    estimatedGas = await contract.estimateGas.mint(network.walletAddress, amount, {from: network.walletAddress})
+    tx = await contract.mint(network.walletAddress, amount, {from: network.walletAddress, gasLimit: estimatedGas})
     txHash = tx.hash
     await tx.wait()
   }

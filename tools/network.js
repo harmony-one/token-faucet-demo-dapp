@@ -23,8 +23,8 @@ module.exports = class Network {
     this.walletAddress = '';
     
     this.setNetwork(network);
-    this.gasPrice = process.env.GAS_PRICE;
-    this.gasLimit = process.env.GAS_LIMIT;
+    this.gasPrice = process.env.HARMONY_GAS_PRICE;
+    this.gasLimit = process.env.HARMONY_GAS_LIMIT;
   }
 
   setNetwork(network) {

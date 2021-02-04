@@ -15,20 +15,20 @@ module.exports = {
     harmony_localnet: {
       url: 'http://localhost:9500',
       chainId: 1666700000,
-      gasPrice: parseInt(process.env.GAS_PRICE),
-      accounts: [process.env.LOCALNET_PRIVATE_KEY],
+      gasPrice: parseInt(process.env.HARMONY_GAS_PRICE),
+      accounts: [process.env.HARMONY_LOCALNET_PRIVATE_KEY],
     },
     harmony_testnet: {
       url: 'https://api.s0.b.hmny.io',
       chainId: 1666700000,
-      gasPrice: parseInt(process.env.GAS_PRICE),
-      accounts: [process.env.TESTNET_PRIVATE_KEY],
+      gasPrice: parseInt(process.env.HARMONY_GAS_PRICE),
+      accounts: [process.env.HARMONY_TESTNET_PRIVATE_KEY],
     },
     harmony_mainnet: {
       url: 'https://api.s0.t.hmny.io',
       chainId: 1666600000,
-      gasPrice: parseInt(process.env.GAS_PRICE),
-      accounts: [process.env.MAINNET_PRIVATE_KEY],
+      gasPrice: parseInt(process.env.HARMONY_GAS_PRICE),
+      accounts: [process.env.HARMONY_MAINNET_PRIVATE_KEY],
     },
 
     // Ethereum

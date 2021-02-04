@@ -5,7 +5,7 @@ const argv = yargs
     alias: 'n',
     description: 'Which network to use',
     type: 'string',
-    default: 'testnet'
+    default: 'harmony_testnet'
   })
   .option('api', {
     alias: 'a',
@@ -58,15 +58,12 @@ const network = new Network(argv.network, api);
 const tokenContract = network.loadContract(`../build/contracts/TestToken.json`, tokenAddress, argv.privateKey);
 const faucetContract = network.loadContract(`../build/contracts/Faucet.json`, faucetAddress, argv.privateKey);
 
-const walletAddress = network.walletAddress;
-const walletAddressBech32 = getAddress(walletAddress).bech32;
-
 async function status() {
   var balanceOf, balance;
 
-  balanceOf = (api == 'web3') ? await tokenContract.methods.balanceOf(walletAddress).call() : await tokenContract.balanceOf(walletAddress)
+  balanceOf = (api == 'web3') ? await tokenContract.methods.balanceOf(network.walletAddress).call() : await tokenContract.balanceOf(network.walletAddress)
   balanceOf = (balanceOf._isBigNumber) ? balanceOf.toString() : balanceOf
-  console.log(`TestToken (${tokenAddress}) balance for address ${walletAddress} / ${walletAddressBech32} is: ${Web3.utils.fromWei(balanceOf)}\n`);
+  console.log(`TestToken (${tokenAddress}) balance for address ${network.walletAddress} / ${getAddress(network.walletAddress).bech32} is: ${Web3.utils.fromWei(balanceOf)}\n`);
 
   balance = (api == 'web3') ? await faucetContract.methods.balance().call() : await faucetContract.balance()
   balance = (balance._isBigNumber) ? balance.toString() : balance
@@ -74,17 +71,17 @@ async function status() {
 }
 
 async function fund() {
-  console.log(`Attempting to fund the address ${walletAddress} / ${walletAddressBech32} with TestToken tokens from the faucet (${faucetAddress}) ...`)
+  console.log(`Attempting to fund the address ${network.walletAddress} / ${getAddress(network.walletAddress).bech32} with TestToken tokens from the faucet (${faucetAddress}) ...`)
 
   var estimatedGas, tx, txHash;
   
   if (api == 'web3') {
-    estimatedGas = await faucetContract.methods.fund(walletAddress).estimateGas({from: walletAddress});
-    tx = await faucetContract.methods.fund(walletAddress).send({from: walletAddress, gas: estimatedGas});
+    estimatedGas = await faucetContract.methods.fund(network.walletAddress).estimateGas({from: network.walletAddress});
+    tx = await faucetContract.methods.fund(network.walletAddress).send({from: network.walletAddress, gas: estimatedGas});
     txHash = tx.transactionHash
   } else if (api == 'ethers') {
-    estimatedGas = await faucetContract.estimateGas.fund(walletAddress, {from: walletAddress})
-    tx = await faucetContract.fund(walletAddress, {from: walletAddress, gasLimit: estimatedGas})
+    estimatedGas = await faucetContract.estimateGas.fund(network.walletAddress, {from: network.walletAddress})
+    tx = await faucetContract.fund(network.walletAddress, {from: network.walletAddress, gasLimit: estimatedGas})
     txHash = tx.hash
     await tx.wait()
   }

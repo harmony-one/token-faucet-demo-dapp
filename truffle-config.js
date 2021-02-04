@@ -12,7 +12,7 @@ module.exports = {
           process.env.LOCALNET_URL,
           { },
           { shardID: 0, chainId: 2 },
-          { gasLimit: process.env.GAS_LIMIT, gasPrice: process.env.GAS_PRICE},
+          { gasLimit: process.env.HARMONY_GAS_LIMIT, gasPrice: process.env.HARMONY_GAS_PRICE},
         );
         const newAcc = truffleProvider.addByPrivateKey(process.env.LOCALNET_PRIVATE_KEY);
         truffleProvider.setSigner(newAcc);
@@ -23,12 +23,12 @@ module.exports = {
       network_id: '2',
       provider: () => {
         const truffleProvider = new TruffleProvider(
-          process.env.TESTNET_URL,
+          process.env.HARMONY_TESTNET_URL,
           { },
           { shardID: 0, chainId: 2 },
-          { gasLimit: process.env.GAS_LIMIT, gasPrice: process.env.GAS_PRICE},
+          { gasLimit: process.env.HARMONY_GAS_LIMIT, gasPrice: process.env.HARMONY_GAS_PRICE},
         );
-        const newAcc = truffleProvider.addByPrivateKey(process.env.TESTNET_PRIVATE_KEY);
+        const newAcc = truffleProvider.addByPrivateKey(process.env.HARMONY_TESTNET_PRIVATE_KEY);
         truffleProvider.setSigner(newAcc);
         return truffleProvider;
       },
@@ -40,9 +40,9 @@ module.exports = {
           process.env.MAINNET_URL,
           { },
           { shardID: 0, chainId: 1 },
-          { gasLimit: process.env.GAS_LIMIT, gasPrice: process.env.GAS_PRICE },
+          { gasLimit: process.env.HARMONY_GAS_LIMIT, gasPrice: process.env.HARMONY_GAS_PRICE },
         );
-        const newAcc = truffleProvider.addByPrivateKey(process.env.MAINNET_PRIVATE_KEY);
+        const newAcc = truffleProvider.addByPrivateKey(process.env.HARMONY_MAINNET_PRIVATE_KEY);
         truffleProvider.setSigner(newAcc);
         return truffleProvider;
       },
