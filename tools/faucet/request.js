@@ -58,7 +58,7 @@ const network = new Network(argv.network, api);
 const tokenContract = network.loadContract(`../build/contracts/TestToken.json`, tokenAddress, argv.privateKey);
 const faucetContract = network.loadContract(`../build/contracts/Faucet.json`, faucetAddress, argv.privateKey);
 
-const walletAddress = network.wallet;
+const walletAddress = network.walletAddress;
 const walletAddressBech32 = getAddress(walletAddress).bech32;
 
 async function status() {

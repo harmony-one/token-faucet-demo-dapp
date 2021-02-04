@@ -63,7 +63,7 @@ const amount = Web3.utils.toWei(argv.amount);
 const tokenContract = network.loadContract(`../build/contracts/TestToken.json`, tokenAddress, 'deployer');
 const faucetContract = network.loadContract(`../build/contracts/Faucet.json`, faucetAddress, 'deployer');
 
-var walletAddress = network.wallet;
+var walletAddress = network.walletAddress;
 const walletAddressBech32 = getAddress(walletAddress).bech32;
 
 async function status() {

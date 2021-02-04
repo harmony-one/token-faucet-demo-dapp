@@ -50,7 +50,7 @@ const amount = web3.utils.toWei(argv.amount);
 
 const contract = network.loadContract('../build/contracts/TestToken.json', tokenAddress, 'deployer');
 
-const walletAddress = network.wallet;
+const walletAddress = network.walletAddress;
 
 async function display() {
   var totalSupply;

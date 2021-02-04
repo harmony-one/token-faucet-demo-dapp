@@ -19,7 +19,8 @@ module.exports = class Network {
     this.client = null;
     this.chainId = null;
     this.privateKeys = {deployer: null, tester: null};
-    this.wallet = '';
+    this.wallet = null;
+    this.walletAddress = '';
     
     this.setNetwork(network);
     this.gasPrice = process.env.GAS_PRICE;
@@ -99,8 +100,7 @@ module.exports = class Network {
     }
   }
 
-  loadContract(path, address, privateKeyType) {
-    let contract = null;
+  privateKeyFromPrivateKeyType(privateKeyType) {
     let privateKey = null;
 
     switch (privateKeyType) {
@@ -113,7 +113,44 @@ module.exports = class Network {
         privateKey = privateKeyType;
     }
 
-    const contractJson = require(path);
+    return privateKey
+  }
+
+  setDefaultWallet(privateKeyType) {
+    const privateKey = this.privateKeyFromPrivateKeyType(privateKeyType)
+
+    switch (this.type) {
+      case 'web3':
+        this.setDefaultWeb3Wallet(privateKey)
+        break;
+      case 'ethers':
+        this.setDefaultEthersWallet(privateKey)
+        break;
+
+      default:
+        this.setDefaultWeb3Wallet(privateKey)
+    }
+  }
+
+  setDefaultWeb3Wallet(privateKey) {
+    if (privateKey != null && privateKey != '') {
+      const account = this.client.eth.accounts.privateKeyToAccount(privateKey)
+      this.client.eth.accounts.wallet.add(privateKey)
+      this.client.eth.defaultAccount = this.walletAddress = account.address
+    }
+  }
+
+  setDefaultEthersWallet(privateKey) {
+    if (privateKey != null && privateKey != '') {
+      this.wallet = new Ethers.Wallet(`0x${privateKey}`, this.client);
+      this.walletAddress = this.wallet.address
+    }
+  }
+
+  loadContract(path, address, privateKeyType) {
+    const privateKey = this.privateKeyFromPrivateKeyType(privateKeyType)
+    let contract = null
+    const contractJson = require(path)
 
     switch (this.type) {
       case 'web3':
@@ -131,25 +168,56 @@ module.exports = class Network {
   }
 
   loadWeb3Contract(contractJson, address, privateKey) {
-    var contract = new this.client.eth.Contract(contractJson.abi, address)
+    this.setDefaultWeb3Wallet(privateKey)
+    return new this.client.eth.Contract(contractJson.abi, address)
+  }
+
+  loadEthersContract(contractJson, address, privateKey) {
+    var contract = new Ethers.Contract(address, contractJson.abi)
 
     if (privateKey != null && privateKey != '') {
-      const account = this.client.eth.accounts.privateKeyToAccount(privateKey);
-      this.client.eth.accounts.wallet.add(privateKey);
-      this.client.eth.defaultAccount = account.address;
-      this.wallet = account.address;
+      this.setDefaultEthersWallet(privateKey)
+      contract = contract.connect(this.wallet);
     }
 
     return contract
   }
 
-  loadEthersContract(contractJson, address, privateKey) {
-    var contract = new Ethers.Contract(address, contractJson.abi);
+  newContract(path, privateKeyType) {
+    const privateKey = this.privateKeyFromPrivateKeyType(privateKeyType)
+    let contract = null
+    const contractJson = require(path)
+
+    switch (this.type) {
+      case 'web3':
+        contract = this.newWeb3Contract(contractJson, privateKey)
+        break;
+      case 'ethers':
+        contract = this.newEthersContract(contractJson, privateKey)
+        break;
+
+      default:
+        contract = this.newWeb3Contract(contractJson, privateKey)
+    }
+
+    return contract;
+  }
+
+  newWeb3Contract(contractJson, privateKey) {
+    this.setDefaultWeb3Wallet(privateKey)
+    var bytecode = Web3.utils.isHex(contractJson.bytecode) ? contractJson.bytecode : `0x${contractJson.bytecode}`
+    var contract = new this.client.eth.Contract(contractJson.abi, null, { data: bytecode })
+
+    return contract
+  }
+
+  newEthersContract(contractJson, privateKey) {
+    var bytecode = Web3.utils.isHex(contractJson.bytecode) ? contractJson.bytecode : `0x${contractJson.bytecode}`
+    var contract = new Ethers.ContractFactory(contractJson.abi, bytecode)
 
     if (privateKey != null && privateKey != '') {
-      const wallet = new Ethers.Wallet(`0x${privateKey}`, this.client);
-      this.wallet = wallet.address
-      contract = contract.connect(wallet);
+      this.setDefaultEthersWallet(privateKey)
+      contract = contract.connect(this.wallet);
     }
 
     return contract
