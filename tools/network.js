@@ -31,19 +31,19 @@ module.exports = class Network {
     this.network = network.toLowerCase();
     
     switch (this.network) {
-      case 'localnet':
-      case 'local':
+      case 'harmony_localnet':
+      case 'harmony_local':
         this.network = 'localnet';
         this.chainId = 1666700000;
         this.url = 'http://localhost:9500';
         break
 
-      case 'testnet':
+      case 'harmony_testnet':
         this.chainId = 1666700000;
         this.url = "https://api.s0.b.hmny.io";
         break;
       
-      case 'mainnet':
+      case 'harmony_mainnet':
         this.chainId = 1666600000;
         this.url = "https://api.s0.t.hmny.io";
         break;

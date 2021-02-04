@@ -5,7 +5,7 @@ const { getAddress } = require("@harmony-js/crypto");
 const web3 = require('web3');
 const faucet = {
   amount: web3.utils.toWei("10000"), //award 10000 tokens per faucet interaction
-  frequency: 1 //will allow people to request funds every block (so essentially every ~5s)
+  frequency: 1 //will allow people to request funds every block (so essentially every ~2s)
 }
 
 module.exports = function (deployer, network, accounts) {

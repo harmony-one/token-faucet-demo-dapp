@@ -5,7 +5,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider")
 module.exports = {
   networks: {
     // Harmony
-    localnet: {
+    harmony_localnet: {
       network_id: '2',
       provider: () => {
         const truffleProvider = new TruffleProvider(
@@ -19,7 +19,7 @@ module.exports = {
         return truffleProvider;
       },
     },
-    testnet: {
+    harmony_testnet: {
       network_id: '2',
       provider: () => {
         const truffleProvider = new TruffleProvider(
@@ -33,7 +33,7 @@ module.exports = {
         return truffleProvider;
       },
     },
-    mainnet: {
+    harmony_mainnet: {
       network_id: '1',
       provider: () => {
         const truffleProvider = new TruffleProvider(

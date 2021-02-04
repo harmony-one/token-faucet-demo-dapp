@@ -35,7 +35,7 @@ async function deploy() {
   console.log(`Attempting to deploy the Faucet contract using ${api}`)
   const faucetOptions = {
     amount: Web3.utils.toWei("10000"), //award 10000 tokens per faucet interaction
-    frequency: 1 //will allow people to request funds every block (so essentially every ~5s)
+    frequency: 1 //will allow people to request funds every block (so essentially every ~2s)
   }
   const faucetArgs = [tokenContractAddress, faucetOptions.amount, faucetOptions.frequency]
   const faucetContract = network.newContract(`../build/contracts/Faucet.json`, 'deployer')
