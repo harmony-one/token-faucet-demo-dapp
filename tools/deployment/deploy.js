@@ -28,10 +28,11 @@ const { getAddress } = require('@harmony-js/crypto')
 const network = new Network(argv.network, api)
 
 async function deploy() {
-  console.log(`Attempting to deploy TestToken contract using ${api}`)
+  console.log(`Attempting to deploy the TestToken contract using ${api}`)
   const tokenContract = network.newContract(`../build/contracts/TestToken.json`, 'deployer')
   const tokenContractAddress = await deployContract(tokenContract, [])
 
+  console.log(`Attempting to deploy the Faucet contract using ${api}`)
   const faucetOptions = {
     amount: Web3.utils.toWei("10000"), //award 10000 tokens per faucet interaction
     frequency: 1 //will allow people to request funds every block (so essentially every ~5s)
@@ -46,14 +47,14 @@ async function deploy() {
 }
 
 async function deployContract(contract, args) {
-  var estimatedGas, contractAddress
+  var estimatedGas, contractAddress, instance
 
   if (api == 'web3') {
     estimatedGas = await contract.deploy({arguments: args}).estimateGas({from: network.walletAddress})
     instance = await contract.deploy({arguments: args}).send({from: network.walletAddress, gas: estimatedGas})
     contractAddress = instance.options.address
   } else if (api == 'ethers') {
-    const instance = await contract.deploy(...args)
+    instance = await contract.deploy(...args)
     contractAddress = instance.address
     await instance.deployTransaction.wait()
   }
