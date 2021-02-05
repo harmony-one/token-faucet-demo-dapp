@@ -1,71 +1,75 @@
-'use strict';
+'use strict'
 
-const Web3 = require('web3');
-const Ethers = require('ethers');
-require("dotenv").config();
+const Web3 = require('web3')
+const Ethers = require('ethers')
+require("dotenv").config()
 
 module.exports = class Network {
-  constructor(network, type) {
-    this.type = '';
+  constructor(network, type, debug) {
+    this.type = ''
 
     if (type) {
-      this.type = type;
+      this.type = type
     } else {
-      this.type = 'web3';
+      this.type = 'web3'
     }
 
-    this.network = '';
-    this.url = '';
-    this.client = null;
-    this.chainId = null;
-    this.privateKeys = {deployer: null, tester: null};
-    this.wallet = null;
-    this.walletAddress = '';
+    this.network = ''
+    this.url = ''
     
-    this.setNetwork(network);
-    this.gasPrice = process.env.HARMONY_GAS_PRICE;
-    this.gasLimit = process.env.HARMONY_GAS_LIMIT;
+    this.client = null
+    this.chainId = null
+    
+    this.privateKeys = {deployer: null, tester: null}
+    this.wallet = null
+    this.walletAddress = ''
+
+    this.debug = debug || false
+    
+    this.setNetwork(network)
+    this.gasPrice = process.env.HARMONY_GAS_PRICE
+    this.gasLimit = process.env.HARMONY_GAS_LIMIT
   }
 
   setNetwork(network) {
-    this.network = network.toLowerCase();
+    this.network = network.toLowerCase()
     
     switch (this.network) {
       case 'harmony_localnet':
       case 'harmony_local':
-        this.network = 'localnet';
-        this.chainId = 1666700000;
-        this.url = 'http://localhost:9500';
+        this.network = 'harmony_localnet'
+        this.chainId = 1666700000
+        this.url = 'http://localhost:9500'
         break
 
       case 'harmony_testnet':
-        this.chainId = 1666700000;
-        this.url = "https://api.s0.b.hmny.io";
-        break;
+        this.chainId = 1666700000
+        this.url = "https://api.s0.b.hmny.io"
+        break
       
       case 'harmony_mainnet':
-        this.chainId = 1666600000;
-        this.url = "https://api.s0.t.hmny.io";
-        break;
+        this.chainId = 1666600000
+        this.url = "https://api.s0.t.hmny.io"
+        break
       
       case 'ropsten':
         this.chainId = 3,
-        this.url = `https://ropsten.infura.io/v3/${process.env.INFURA_KEY}`;
-        break;
+        this.url = `https://ropsten.infura.io/v3/${process.env.INFURA_KEY}`
+        break
 
       case 'rinkeby':
         this.chainId = 4,
         this.url = `https://rinkeby.infura.io/v3/${process.env.INFURA_KEY}`
-        break;
+        break
 
       case 'kovan':
         this.chainId = 42,
         this.url = `https://kovan.infura.io/v3/${process.env.INFURA_KEY}`
-        break;
+        break
       
       default:
-        console.log('Please enter a valid network');
-        throw new Error('NetworkRequired');
+        console.log('Please enter a valid network')
+        throw new Error('NetworkRequired')
     }
 
     this.setClient()
@@ -78,39 +82,49 @@ module.exports = class Network {
 
   setClient() {
     if (this.type == 'web3') {
-      this.client = new Web3(this.url);
+      this.setWeb3Client()
     } else {
-      switch (this.network) {
-        case 'ropsten':
-        case 'rinkeby':
-        case 'kovan':
-          this.client = Ethers.getDefaultProvider(this.network, {infura: process.env.INFURA_KEY});
-          break;
-        
-        default:
-          this.client = new Ethers.providers.JsonRpcProvider(this.url, {chainId: this.chainId});
-      }
+      this.setEthersClient()
+    }
+  }
 
-      /*this.client.on('debug', (info) => {
-        console.log(info.action);
-        console.log(info.request);
-        console.log(info.response);
-        console.log(info.provider);
-      });*/
+  setWeb3Client() {
+    this.client = new Web3(this.url)
+  }
+
+  setEthersClient() {
+    switch (this.network) {
+      case 'ropsten':
+      case 'rinkeby':
+      case 'kovan':
+        this.client = Ethers.getDefaultProvider(this.network, {infura: process.env.INFURA_KEY})
+        break
+      
+      default:
+        this.client = new Ethers.providers.JsonRpcProvider(this.url, {chainId: this.chainId})
+    }
+
+    if (this.debug) {
+      this.client.on('debug', (info) => {
+        console.log(info.action)
+        console.log(info.request)
+        console.log(info.response)
+        console.log(info.provider)
+      })
     }
   }
 
   privateKeyFromPrivateKeyType(privateKeyType) {
-    let privateKey = null;
+    let privateKey = null
 
     switch (privateKeyType) {
       case 'deployer':
       case 'tester':
         privateKey = this.privateKeys[privateKeyType]
-        break;
+        break
 
       default:
-        privateKey = privateKeyType;
+        privateKey = privateKeyType
     }
 
     return privateKey
@@ -122,10 +136,10 @@ module.exports = class Network {
     switch (this.type) {
       case 'web3':
         this.setDefaultWeb3Wallet(privateKey)
-        break;
+        break
       case 'ethers':
         this.setDefaultEthersWallet(privateKey)
-        break;
+        break
 
       default:
         this.setDefaultWeb3Wallet(privateKey)
@@ -142,7 +156,7 @@ module.exports = class Network {
 
   setDefaultEthersWallet(privateKey) {
     if (privateKey != null && privateKey != '') {
-      this.wallet = new Ethers.Wallet(`0x${privateKey}`, this.client);
+      this.wallet = new Ethers.Wallet(`0x${privateKey}`, this.client)
       this.walletAddress = this.wallet.address
     }
   }
@@ -154,17 +168,17 @@ module.exports = class Network {
 
     switch (this.type) {
       case 'web3':
-        contract = this.loadWeb3Contract(contractJson, address, privateKey);
-        break;
+        contract = this.loadWeb3Contract(contractJson, address, privateKey)
+        break
       case 'ethers':
-        contract = this.loadEthersContract(contractJson, address, privateKey);
-        break;
+        contract = this.loadEthersContract(contractJson, address, privateKey)
+        break
 
       default:
-        contract = this.loadWeb3Contract(contractJson, address, privateKey);
+        contract = this.loadWeb3Contract(contractJson, address, privateKey)
     }
 
-    return contract;
+    return contract
   }
 
   loadWeb3Contract(contractJson, address, privateKey) {
@@ -177,7 +191,7 @@ module.exports = class Network {
 
     if (privateKey != null && privateKey != '') {
       this.setDefaultEthersWallet(privateKey)
-      contract = contract.connect(this.wallet);
+      contract = contract.connect(this.wallet)
     }
 
     return contract
@@ -191,16 +205,16 @@ module.exports = class Network {
     switch (this.type) {
       case 'web3':
         contract = this.newWeb3Contract(contractJson, privateKey)
-        break;
+        break
       case 'ethers':
         contract = this.newEthersContract(contractJson, privateKey)
-        break;
+        break
 
       default:
         contract = this.newWeb3Contract(contractJson, privateKey)
     }
 
-    return contract;
+    return contract
   }
 
   newWeb3Contract(contractJson, privateKey) {
@@ -217,7 +231,7 @@ module.exports = class Network {
 
     if (privateKey != null && privateKey != '') {
       this.setDefaultEthersWallet(privateKey)
-      contract = contract.connect(this.wallet);
+      contract = contract.connect(this.wallet)
     }
 
     return contract
