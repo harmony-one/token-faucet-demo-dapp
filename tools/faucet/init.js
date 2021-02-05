@@ -1,5 +1,5 @@
 // Args
-const yargs = require('yargs');
+const yargs = require('yargs')
 const argv = yargs
   .option('network', {
     alias: 'n',
@@ -30,55 +30,55 @@ const argv = yargs
   })
   .help()
   .alias('help', 'h')
-  .argv;
+  .argv
 
-const tokenAddress = argv.token;
-const faucetAddress = argv.faucet;
-const api = argv.api;
+const tokenAddress = argv.token
+const faucetAddress = argv.faucet
+const api = argv.api
 
 if (tokenAddress == null || tokenAddress == '') {
-  console.log('You must supply a token contract address using --token CONTRACT_ADDRESS or -t CONTRACT_ADDRESS!');
-  process.exit(0);
+  console.log('You must supply a token contract address using --token CONTRACT_ADDRESS or -t CONTRACT_ADDRESS!')
+  process.exit(0)
 }
 
 if (faucetAddress == null || faucetAddress == '') {
-  console.log('You must supply the faucet contract address using --faucet CONTRACT_ADDRESS or -f CONTRACT_ADDRESS!');
-  process.exit(0);
+  console.log('You must supply the faucet contract address using --faucet CONTRACT_ADDRESS or -f CONTRACT_ADDRESS!')
+  process.exit(0)
 }
 
 if (argv.amount == null || argv.amount == '') {
-  console.log('You must supply the amount of tokens to transfer to the faucet using --amount AMOUNT or -a AMOUNT! Amount is a normal number - not wei');
-  process.exit(0);
+  console.log('You must supply the amount of tokens to transfer to the faucet using --amount AMOUNT or -a AMOUNT! Amount is a normal number - not wei')
+  process.exit(0)
 }
 
 // Libs
-const Web3 = require('web3');
-const Network = require("../network.js");
-const { getAddress } = require("@harmony-js/crypto");
+const Web3 = require('web3')
+const Network = require("../network.js")
+const { getAddress } = require("@harmony-js/crypto")
 
 // Vars
-const network = new Network(argv.network, api);
-const amount = Web3.utils.toWei(argv.amount);
+const network = new Network(argv.network, api)
+const amount = Web3.utils.toWei(argv.amount)
 
-const tokenContract = network.loadContract(`../build/contracts/TestToken.json`, tokenAddress, 'deployer');
-const faucetContract = network.loadContract(`../build/contracts/Faucet.json`, faucetAddress, 'deployer');
+const tokenContract = network.loadContract(`../build/contracts/TestToken.json`, tokenAddress, 'deployer')
+const faucetContract = network.loadContract(`../build/contracts/Faucet.json`, faucetAddress, 'deployer')
 
 async function status() {
-  var balanceOf, balance;
+  var balanceOf, balance
 
   balanceOf = (api == 'web3') ? await tokenContract.methods.balanceOf(network.walletAddress).call() : await tokenContract.balanceOf(network.walletAddress)
   balanceOf = (balanceOf._isBigNumber) ? balanceOf.toString() : balanceOf
-  console.log(`TestToken (${tokenAddress}) balance for address ${network.walletAddress} / ${getAddress(network.walletAddress).bech32} is: ${Web3.utils.fromWei(balanceOf)}\n`);
+  console.log(`TestToken (${tokenAddress}) balance for address ${network.walletAddress} / ${getAddress(network.walletAddress).bech32} is: ${Web3.utils.fromWei(balanceOf)}\n`)
 
   balance = (api == 'web3') ? await faucetContract.methods.balance().call() : await faucetContract.balance()
   balance = (balance._isBigNumber) ? balance.toString() : balance
-  console.log(`The current balance of TestToken (${tokenAddress}) tokens in the faucet is: ${Web3.utils.fromWei(balance)}`);
+  console.log(`The current balance of TestToken (${tokenAddress}) tokens in the faucet is: ${Web3.utils.fromWei(balance)}`)
 }
 
 async function topup() {
   console.log(`Attempting to topup the TestToken faucet (${faucetAddress}) with ${argv.amount} tokens...`)
 
-  var estimatedGas, tx, txHash;
+  var estimatedGas, tx, txHash
   
   if (api == 'web3') {
     estimatedGas = await tokenContract.methods.transfer(faucetAddress, amount).estimateGas({from: network.walletAddress})
@@ -91,18 +91,25 @@ async function topup() {
     await tx.wait()
   }
 
-  console.log(`Faucet topup tx hash: ${txHash}\n`);
+  console.log(`Faucet topup tx hash: ${txHash}\n`)
 }
 
-status()
-  .then(() => {
-    topup().then(() => {
-      status().then(() => {
-        process.exit(0);
-      })
+status().then(() => {
+  topup().then(() => {
+    status().then(() => {
+      process.exit(0)
+    })
+    .catch(function(err){
+      console.log(err)
+      process.exit(0)
     })
   })
   .catch(function(err){
-    console.log(err);
-    process.exit(0);
-  });
+    console.log(err)
+    process.exit(0)
+  })
+})
+.catch(function(err){
+  console.log(err)
+  process.exit(0)
+})
